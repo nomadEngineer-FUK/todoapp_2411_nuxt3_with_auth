@@ -25,9 +25,12 @@ const { isAuthenticated} = useAuth();
 </script>
 
 <template>
+    <!-- 未ログインの場合、ログイン画面を表示 -->
     <div v-if="!isAuthenticated">
         <Login />
     </div>
+
+    <!-- ログイン済みの場合、todo一覧を表示 -->
     <div v-else>
         <ClientOnly>
             <TableInput />

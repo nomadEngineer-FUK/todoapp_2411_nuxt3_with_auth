@@ -3,8 +3,11 @@ import { useNuxtApp } from "nuxt/app";
 import { computed } from "vue";
 import { useAuthUser, useIsAuthenticated } from "../composables/index";
 
+/**
+ * 認証関連のユーティリティを提供するcomposable
+ * @returns 認証操作と状態管理関数を含むオブジェクト
+ */
 export const useAuth = () => {
-    // 状態管理
     const { $supabase } = useNuxtApp();
     const router = useRouter(); // Vue Router を使ってリダイレクト処理を行う
     const user = useAuthUser(); // 認証されたユーザー情報を取得
@@ -66,7 +69,7 @@ export const useAuth = () => {
             console.error('Signup error:', err);
         } finally {
             isLoading.value = false; // ローディング終了
-        }
+        };
         return user.value;
     };
 
@@ -90,10 +93,8 @@ export const useAuth = () => {
             user.value = data.user || null; // 認証されたユーザー情報をセット
             isAuthenticated.value = Boolean(data.user); // 認証状態をセット
 
-            if (isAuthenticated.value) {
-                console.log('User authenticated:', user.value);
-                await router.push('/todos'); // 認証成功後にtodosページにリダイレクト
-            }
+            // 認証成功後にtodosページにリダイレクト
+            if (isAuthenticated.value) await router.push('/todos');
 
         } catch (err) {
             console.error('Login error:', err);
@@ -108,7 +109,6 @@ export const useAuth = () => {
      * ログアウト関数
      * @async
      * @param {string} [reason] - ログアウト理由を示す文字列（任意）
-     * @returns {Promise<void>}
      */
     const logout = async (reason?: string): Promise<void> => {
         const { error } = await $supabase.auth.signOut();
@@ -127,11 +127,9 @@ export const useAuth = () => {
     /**
      * ユーザーの認証状態を確認する関数
      * @async
-     * @returns {Promise<void>}
      */
     const checkUser = async (): Promise<void> => {
-        const { data, error } = await $supabase
-            .auth.getSession();
+        const { data, error } = await $supabase.auth.getSession();
         
         if (error) return console.error('Error getting session:', error.message);
   
@@ -216,14 +214,9 @@ export const useAuth = () => {
 
     /**
      * 管理者かどうかを確認する関数
-     * @returns {boolean} ユーザーが管理者の場合はtrue、それ以外はfalse
+     * @returns {boolean} role：[Admin]true、[User]false
      */
-    const isAdmin = computed (() => {
-        const result = user.value?.role === 'admin';
-        // console.log('Authenticated User:', user.value);
-        console.log('Is Admin:', result);
-        return result;
-    });
+    const isAdmin = computed(() => user.value?.role === 'admin');
 
     return {
         user,

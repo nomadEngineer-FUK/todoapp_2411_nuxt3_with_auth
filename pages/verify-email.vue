@@ -1,5 +1,10 @@
 <script setup lang="ts">
 const router = useRouter();
+
+/**
+ * ユーザーをトップページにリダイレクトする関数
+ * @returns {void}
+ */
 const gotoLoginPage = (): void => {
     router.push('/');
 }

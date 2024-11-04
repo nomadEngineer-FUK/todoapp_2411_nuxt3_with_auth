@@ -32,17 +32,14 @@ const router = useRouter();
     router.push('/todos');
   }
 });
-
 </script>
 
 <template>
-  
+
+  <!-- 未ログインの場合は、ログイン画面を表示 -->
   <div v-if="!isAuthenticated">
     <Login />
   </div>
-
-  
-    
 </template>
 
 <style>

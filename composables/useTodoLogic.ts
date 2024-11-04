@@ -54,11 +54,10 @@ export const addTodo = async () => {
     };
 
     // [Validation 2] 空欄 or 有効な日付（YYYY-MM-DD） のみ受け付ける
-    if (newTodo.value.deadline) {
-        if (!isValidDate(newTodo.value.deadline)) {
-            alert('Please enter a valid date (in the format “YYYY-MM-DD”) in the Deadline field.');
-            return;
-        }
+    if (newTodo.value.deadline && !isValidDate(newTodo.value.deadline)) {
+
+        alert('Please enter a valid date (in the format “YYYY-MM-DD”) in the Deadline field.');
+        return;
 
         // 入力が無い場合はnullを代入
         } else {
@@ -113,8 +112,7 @@ export const addTodo = async () => {
  * @returns {void}
  */
 export const resetNewTodo = () => {
-    const newTodo = useNewTodo(); // 状態を取得
-
+    const newTodo = useNewTodo(); // todoの現在値を取得
     Object.assign(newTodo.value, {
         title: '',
         detail: '',
@@ -123,7 +121,6 @@ export const resetNewTodo = () => {
         id: 0
     });
 };
-
 
 /**
  * SupabaseからTodoリストのデータを取得し、`todos`の状態を更新する関数
@@ -169,9 +166,9 @@ export const fetchTodos = async () => {
  * ユーザーのセッションを確認し、現在のユーザー情報を返す非同期関数
  *
  * [処理の流れ]
- * 1. $supabaseクライアントを使用して現在のセッション情報を取得。
- * 2. セッションが存在しない場合、エラーメッセージをコンソールに出力し、nullを返して処理を中断。
- * 3. セッションが存在する場合は、ユーザー情報 (session.user) を返す。
+ *  1. $supabaseクライアントを使用して現在のセッション情報を取得。
+ *  2. セッションが存在しない場合、エラーメッセージをコンソールに出力し、nullを返して処理を中断。
+ *  3. セッションが存在する場合は、ユーザー情報 (session.user) を返す。
  *
  * @async
  * @function checkUserSession
@@ -179,17 +176,27 @@ export const fetchTodos = async () => {
  */
 const checkUserSession = async (): Promise<User | null> => {
     const { $supabase } = useNuxtApp();
-    const { data: { session } } = await $supabase
-        .auth.getSession();
+    const { data: { session } } = await $supabase.auth.getSession();
         
-        if (!session) {
-            console.error('No active session. User is not logged in.');
-            return null;
-        };
+    if (!session) {
+        console.error('No active session. User is not logged in.');
+        return null;
+    };
     
     return session.user;
 };
 
+/**
+ * フィルタとソートされたTodoリストを返す計算プロパティ
+ * 
+ * [処理の流れ]
+ *  1. 各種状態の取得
+ *  2. 完了・未完了のフィルタリング
+ *  3. ソート処理
+ * 
+ * @computed
+ * @returns {Todo[]}
+ */
 export const sortedTodosList = computed<Todo[]>(() => {
     // 状態管理
     const todos = useTodos();
@@ -199,14 +206,18 @@ export const sortedTodosList = computed<Todo[]>(() => {
 
     if (!todos.value.length) return [];
 
+    // 完了・未完了のフィルタリング
     const filterdTodos = isCompletion.value
         ? todos.value.filter((todo: Todo) => todo.status)
         : todos.value.filter((todo: Todo) => !todo.status);
 
+    // ソート処理
     const sortedArray = [...filterdTodos].sort((a, b) => {
+        // ソートで選択されている項目を取得（id / title / deadline）
         const fieldA = a[selectedSort.value as keyof Todo] as unknown as string | number;
         const fieldB = b[selectedSort.value as keyof Todo] as unknown as string | number;
 
+        // ソートの項目=deadline
         if (selectedSort.value === 'deadline') {
             const dateA = fieldA ? new Date(fieldA as string).getTime() : Infinity;
             const dateB = fieldB ? new Date(fieldB as string).getTime() : Infinity;
@@ -219,31 +230,29 @@ export const sortedTodosList = computed<Todo[]>(() => {
                 : dateB - dateA;
         }
 
+        // ソートの項目=deadline以外のString型（現時点ではtitleのみ）
         if (typeof fieldA === 'string' && typeof fieldB === 'string') {
             return sortOrder.value === 'asc'
                 ? fieldA.localeCompare(fieldB)
                 : fieldB.localeCompare(fieldA)
         }
  
+        // ソートの 昇順or降順 を判別して並び替え
         return sortOrder.value === 'asc'
             ? (fieldA as number) - (fieldB as number)
             : (fieldB as number) - (fieldA as number)
-        
     });
     
-    // ソートが完了したtodoをreturn
-    return sortedArray;
-
+    return sortedArray; // ソートが完了したtodoをreturn
 });
-
 
 /**
  * 指定された文字列が有効な日付（YYYY-MM-DD形式）かを判定する関数
  *
  * [処理の流れ]
- * 1. 正規表現で日付文字列が "YYYY-MM-DD" 形式かをチェック。形式が異なる場合は false を返す。
- * 2. new Date() を使用して実際の日付として有効かを確認。無効な日付の場合は false を返す。
- * 3. 年、月、日のそれぞれが指定の範囲内であることを確認し、すべて一致する場合のみ true を返す。
+ *  1. 正規表現で日付文字列が "YYYY-MM-DD" 形式かをチェック。形式が異なる場合は false を返す。
+ *  2. new Date() を使用して実際の日付として有効かを確認。無効な日付の場合は false を返す。
+ *  3. 年、月、日のそれぞれが指定の範囲内であることを確認し、すべて一致する場合のみ true を返す。
  *
  * @function isValidDate
  * @param {string} dateString - 判定対象の日付文字列
@@ -258,12 +267,6 @@ export const isValidDate = (dateString: string) => {
 
     // 日付が存在するかを確認するために new Date() を使用
     const date = new Date(dateString);
-    const timestamp = date.getTime();
-
-    // 日付が無効な場合、timestamp は NaN になる
-    if (isNaN(timestamp)) {
-    return false;
-    };
 
     // 月と日が範囲内かどうかを確認する
     const year = date.getUTCFullYear();
@@ -325,7 +328,6 @@ export const toggleEditMode = (showEdit: boolean) => {
  */
 export const updateTodo = async (todo: Todo) => {
     const { $supabase } = useNuxtApp();
-    // const isEditing = useIsEditing();
 
     const { error } = await $supabase
         .from('2411_todoapp')
@@ -339,9 +341,8 @@ export const updateTodo = async (todo: Todo) => {
 
     if (error) console.error(error);
 
-    await fetchTodos();   // todosの値をデータベースの値と同期
-    resetNewTodo(); // newTodoの値をリセット
-    
+    await fetchTodos(); // todosの値をデータベースの値と同期
+    resetNewTodo();     // newTodoの値をリセット
 };
 
 /**
@@ -362,30 +363,21 @@ export const updateTodo = async (todo: Todo) => {
 export const deleteTodo = async (todo: Todo) => {
     const { $supabase } = useNuxtApp();
 
-    try {
-        // 実行の確認
-        let confirmationForDelete = window.confirm('Are you sure you want to DELETE Todo No. ' + todo.id + ' ?');
+    // 実行の確認
+    const confirmation = window.confirm('Are you sure you want to DELETE Todo No. ' + todo.id + ' ?');
 
-        if (confirmationForDelete) {
-            // 引数として受け取ったTodoをデータベースから取得（todo.idがキー）
-            const { data, error } = await $supabase
-                .from('2411_todoapp')
-                .delete()
-                .eq('id', todo.id);
-        
+    if (confirmation) {
+        // 引数として受け取ったTodoをデータベースから取得（todo.idがキー）
+        const { error } = await $supabase
+            .from('2411_todoapp')
+            .delete()
+            .eq('id', todo.id);
 
-            if (error) {
-                console.error('Error deleting todo:', error.message);
-                return;
-            }
-            console.log('Todo deleted:', data);
-
-            // Todoリストを再取得（削除後のtodosをブラウザに再表示）
-            await fetchTodos();
+        if (error) {
+            console.error('Error deleting todo:', error.message);
+            return;
         };
 
-    } catch(err) {
-        console.error('Delete error:', err);
+        await fetchTodos(); // Todoリストを再取得（削除後のtodosをブラウザに再表示）
     };
 };
-
