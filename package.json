@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@nuxt/types": "^2.18.1",
+    "@types/node": "^22.8.7",
     "@vitejs/plugin-vue": "^5.1.4",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^25.0.1",
