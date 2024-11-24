@@ -1,4 +1,4 @@
-import type { Todo, SortType, ExtendedUser, UserProfile } from '../types/type';
+import type { Todo, SortType, ExtendedUser, UserSortType } from '../types/type';
 
 import type { User } from '@supabase/supabase-js'; // user情報
 
@@ -31,7 +31,7 @@ import type { User } from '@supabase/supabase-js'; // user情報
   // ソート順序
   export const useSortOrder = () => useState<'asc' | 'desc'>('sortOrder', () => 'asc');
 
-  // ソート項目
+  // ソート項目（todoのテーブル）
   export const useSelectedSort = () => useState<SortType>('selectedSort', () => 'id');
 
   // Search時の値（idとdeadline、statusは検索対象外）
@@ -39,6 +39,8 @@ import type { User } from '@supabase/supabase-js'; // user情報
 
   // 検索対象のtodosが空欄か否かのフラグ
 export const useIsEmptyAfterSearch = () => useState<boolean>('isEmptyAfterSearch', () => false);
+
+
 
 // ======= 認証関連の状態管理 =======
 
@@ -58,3 +60,15 @@ export const useIsEmptyAfterSearch = () => useState<boolean>('isEmptyAfterSearch
       role: 'user',
       account_status: 'active'
   }));
+
+
+// ======= ユーザー関連の状態管理 =======
+
+// 登録されている全ユーザー
+export const useAllUsers = () => useState<Partial<ExtendedUser>[]>('allUsers', () => []);
+
+// ソート順序
+export const useSortOrderForUser = () => useState<'asc' | 'desc'>('sortOrderForUser', () => 'asc');
+
+// ソート項目（usersテーブル）
+export const useSelectedSortForUser = () => useState<UserSortType>('selectedSortForUser', () => 'username');

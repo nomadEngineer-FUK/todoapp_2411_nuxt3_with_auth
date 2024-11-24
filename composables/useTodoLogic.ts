@@ -1,6 +1,7 @@
 import type { Todo } from "../types/type";
 import type { User } from "@supabase/supabase-js";
 import { useNuxtApp } from "nuxt/app";
+import type { T } from "vitest/dist/chunks/environment.LoooBwUu.js";
 import { computed } from "vue";
 
 // cspell:ignore Nuxt
@@ -192,83 +193,78 @@ const checkUserSession = async (): Promise<User | null> => {
 };
 
 
-
-
 // JSDoc書き直し！！！
 
-
-
-
-/**
- * フィルタとソートされたTodoリストを返す計算プロパティ
- * 
- * [処理の流れ]
- *  1. 各種状態の取得
- *  2. 完了・未完了のフィルタリング
- *  3. ソート処理
- * 
- * @computed
- * @returns {Todo[]}
- */
-
+// フィルタとソートされたTodoリストを返す計算プロパティ
+// @ todos
 export const sortedTodosList = computed(() => {
-    const todos = useTodos();               // Todoリスト
-    const searchText = useSearchText();     // 検索文字列
-    const isCompletion = useIsCompletion(); // 完了/未完了フィルタリング
-    const selectedSort = useSelectedSort(); // ソート対象
-    const sortOrder = useSortOrder();       // ソート順（昇順/降順）
-    
-    // todosが無い場合は空の配列を返す
+    const todos = useTodos();
+    const searchText = useSearchText();
+    const isCompletion = useIsCompletion();
+    const selectedSort = useSelectedSort();
+    const sortOrder = useSortOrder();
+
     if (!todos.value.length) return [];
 
     // 1. 検索フィルタリング
-    const filteredTodosBySearch = getFilteredTodosBySearch(todos.value, searchText.value);
+    const filteredTodosBySearch = getFilteredDataBySearch(
+        todos.value,
+        searchText.value,
+        ['title', 'detail'] // Todo で検索対象とするキー
+    );
 
     // 2. 完了/未完了フィルタリング
-    const filteredTodosByCompletion = getFilteredTodosByCompletion(filteredTodosBySearch, isCompletion.value);
-
-    // 検索結果が空か否かをチェック
-    if (!filteredTodosByCompletion.length) return [];
+    const filteredTodosByCompletion = getFilteredTodosByCompletion(
+        filteredTodosBySearch,
+        isCompletion.value
+    );
 
     // 3. ソート処理
-    const sortedTodos = getSortedTodos(filteredTodosByCompletion, selectedSort.value, sortOrder.value);
+    return getSortedData(
+        filteredTodosByCompletion,
+        selectedSort.value,
+        sortOrder.value
+    );
 
-    return sortedTodos;
 });
 
-/**
- *  1. 検索フィルタリング
- */
-export const getFilteredTodosBySearch = (todos: Todo[], searchText: string | null): Todo[] => {
-    if (!searchText) return todos;
 
-    const lowerSearchText = searchText.toLowerCase(); // 大文字小文字を区別しない
-    return todos.filter((todo) =>
-        todo.title.toLowerCase().includes(lowerSearchText) ||
-        todo.detail?.toLowerCase().includes(lowerSearchText)
+
+/**
+ * データを検索する汎用関数
+ */
+export const getFilteredDataBySearch = <T>(
+    data: T[],
+    searchText: string | null,
+    filterKeys: (keyof T)[]
+): T[] => {
+    if (!searchText) return data;
+
+    // 大文字小文字を区別しない
+    const lowerSearchText = searchText.toLowerCase();
+
+    return data.filter((item) =>
+        filterKeys.some((key) => {
+            const value = item[key];
+            if (typeof value === 'string') {
+                return value.toLocaleLowerCase().includes(lowerSearchText);
+            }
+            return false;
+        })
     );
 };
 
 /**
- * 2. 完了/未完了フィルタリング
+ * データをソートする汎用関数
  */
-export const getFilteredTodosByCompletion = (todos: Todo[], isCompletion: boolean): Todo[] => {
-    return isCompletion
-        ? todos.filter(todo => todo.status)   // 完了todo
-        : todos.filter(todo => !todo.status); // 未完了todo
-};
-
-/**
- * 3. ソート処理
- */
-export const getSortedTodos = (
-    todos: Todo[],
-    selectedSort: keyof Todo,
+export const getSortedData = <T>(
+    data: T[],
+    selectedSort: keyof T,
     sortOrder: 'asc' | 'desc'
-): Todo[] => {
-    return [...todos].sort((a, b) => {
-        const fieldA = a[selectedSort] as unknown as string | number;
-        const fieldB = b[selectedSort] as unknown as string | number;
+): T[] => {
+    return [...data].sort((a, b) => {
+        const fieldA = a[selectedSort];
+        const fieldB = b[selectedSort];
 
         // ソート対象が `deadline` の場合
         if (selectedSort === 'deadline') {
@@ -287,13 +283,125 @@ export const getSortedTodos = (
                 ? fieldA.localeCompare(fieldB)
                 : fieldB.localeCompare(fieldA);
         }
+
         // ソート対象が数値の場合
-        return sortOrder === 'asc'
-            ? (fieldA as number) - (fieldB as number)
-            : (fieldB as number) - (fieldA as number);
-        
+        if (typeof fieldA === 'number' && typeof fieldB === 'number') {
+            return sortOrder === 'asc'
+                ? fieldA - fieldB
+                : fieldB - fieldA;
+        }
+
+        return 0; // それ以外の型はソートしない
     });
+}
+
+/**
+ * 完了/未完了フィルタリング
+ * ※ Todo に限定したロジックは個別に分ける
+ */
+export const getFilteredTodosByCompletion = (todos: Todo[], isCompletion: boolean): Todo[] => {
+    return isCompletion
+        ? todos.filter(todo => todo.status)   // 完了todo
+        : todos.filter(todo => !todo.status); // 未完了todo
 };
+
+
+
+/**
+ * フィルタとソートされたTodoリストを返す計算プロパティ
+ * 
+ * [処理の流れ]
+ *  1. 各種状態の取得
+ *  2. 完了・未完了のフィルタリング
+ *  3. ソート処理
+ * 
+ * @computed
+ * @returns {Todo[]}
+ */
+
+// export const sortedTodosList = computed(() => {
+//     const todos = useTodos();               // Todoリスト
+//     const searchText = useSearchText();     // 検索文字列
+//     const isCompletion = useIsCompletion(); // 完了/未完了フィルタリング
+//     const selectedSort = useSelectedSort(); // ソート対象
+//     const sortOrder = useSortOrder();       // ソート順（昇順/降順）
+    
+//     // todosが無い場合は空の配列を返す
+//     if (!todos.value.length) return [];
+
+//     // 1. 検索フィルタリング
+//     const filteredTodosBySearch = getFilteredTodosBySearch(todos.value, searchText.value);
+
+//     // 2. 完了/未完了フィルタリング
+//     const filteredTodosByCompletion = getFilteredTodosByCompletion(filteredTodosBySearch, isCompletion.value);
+
+//     // 検索結果が空か否かをチェック
+//     if (!filteredTodosByCompletion.length) return [];
+
+//     // 3. ソート処理
+//     const sortedTodos = getSortedTodos(filteredTodosByCompletion, selectedSort.value, sortOrder.value);
+
+//     return sortedTodos;
+// });
+
+// /**
+//  *  1. 検索フィルタリング
+//  */
+// export const getFilteredTodosBySearch = (todos: Todo[], searchText: string | null): Todo[] => {
+//     if (!searchText) return todos;
+
+//     const lowerSearchText = searchText.toLowerCase(); // 大文字小文字を区別しない
+//     return todos.filter((todo) =>
+//         todo.title.toLowerCase().includes(lowerSearchText) ||
+//         todo.detail?.toLowerCase().includes(lowerSearchText)
+//     );
+// };
+
+// /**
+//  * 2. 完了/未完了フィルタリング
+//  */
+// export const getFilteredTodosByCompletion = (todos: Todo[], isCompletion: boolean): Todo[] => {
+//     return isCompletion
+//         ? todos.filter(todo => todo.status)   // 完了todo
+//         : todos.filter(todo => !todo.status); // 未完了todo
+// };
+
+// /**
+//  * 3. ソート処理
+//  */
+// export const getSortedTodos = (
+//     todos: Todo[],
+//     selectedSort: keyof Todo,
+//     sortOrder: 'asc' | 'desc'
+// ): Todo[] => {
+//     return [...todos].sort((a, b) => {
+//         const fieldA = a[selectedSort] as unknown as string | number;
+//         const fieldB = b[selectedSort] as unknown as string | number;
+
+//         // ソート対象が `deadline` の場合
+//         if (selectedSort === 'deadline') {
+//             const dateA = fieldA ? new Date(fieldA as string).getTime() : Infinity;
+//             const dateB = fieldB ? new Date(fieldB as string).getTime() : Infinity;
+
+//             if (!fieldA) return 1;
+//             if (!fieldB) return -1;
+
+//             return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+//         }
+
+//         // ソート対象が文字列の場合
+//         if (typeof fieldA === 'string' && typeof fieldB === 'string') {
+//             return sortOrder === 'asc'
+//                 ? fieldA.localeCompare(fieldB)
+//                 : fieldB.localeCompare(fieldA);
+//         }
+//         // ソート対象が数値の場合
+//         return sortOrder === 'asc'
+//             ? (fieldA as number) - (fieldB as number)
+//             : (fieldB as number) - (fieldA as number);
+        
+//     });
+// };
 
 
 /**

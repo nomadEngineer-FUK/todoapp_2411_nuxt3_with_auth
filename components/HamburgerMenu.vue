@@ -48,7 +48,7 @@ const logoutUser = async (): Promise<void> => {
                 </li>
                 <li>
                     <NuxtLink to="/profile" @click="closeMenu" class="menu-link">
-                        Profile
+                        Your Profile
                     </NuxtLink>
                 </li>
                 <li>

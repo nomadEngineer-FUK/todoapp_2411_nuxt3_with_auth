@@ -1,15 +1,17 @@
 import { useNuxtApp } from "nuxt/app";
-import { ref } from "vue";
-import { useAuthUser, useNewAuthUser } from "~/composables/index";
+import { computed } from "vue";
+import { useAuthUser, useNewAuthUser, useAllUsers } from "~/composables/index";
 import type { UserProfile } from "~/types/type";
 import { useAuth } from "~/composables/useAuth";
-import type { ExtendedUser } from "~/types/type";
+import type { ExtendedUser, UserSortType } from "~/types/type";
+import { getFilteredDataBySearch, getSortedData } from "./useTodoLogic";
 
 // cspell:ignore Nuxt
 // cspell:ignore Supabase
 
 const { $supabase } = useNuxtApp();
 const { checkUser } = useAuth();
+const allUsers = useAllUsers();
 
 // セッションの有効性を確認
 // 呼び出し元にて、他2つの関数含めた3つ全ての戻り値がtrueの場合に、updateProfileがtrueを返す
@@ -34,8 +36,6 @@ export const useUserProfile = () => {
 
     const authUser = useAuthUser();     // 認証されたユーザー情報を取得
     let newAuthUser = useNewAuthUser(); // 編集用
-
-    
 
 
     // 現在ログインしているアカウントの情報を取得
@@ -153,11 +153,9 @@ export const useUserProfile = () => {
 };
 
 
-// アプリに登録されているユーザー一覧を取得
-export const useAllUsers = async (): Promise<Partial<ExtendedUser>[]> => {
 
-    // セッションの有効性を確認
-    await checkUserValid();
+// アプリに登録されているユーザー一覧を取得
+export const fetchAllUsers = async (): Promise<Partial<ExtendedUser>[]> => {
 
     // DBからユーザーの全データ取得
     const { data, error } = await $supabase
@@ -169,5 +167,31 @@ export const useAllUsers = async (): Promise<Partial<ExtendedUser>[]> => {
         return [];
     }
 
-    return data as Partial<ExtendedUser>[];
+    return allUsers.value = data as Partial<ExtendedUser>[];
 };
+
+
+// フィルタとソートされたTodoリストを返す計算プロパティ
+// @usersテーブル
+export const sortedUsersList = computed(() => {
+    const users = useAllUsers();                   // 全ユーザー
+    const searchText = useSearchText();            // 検索文字列
+    const selectedSortForUser = useSelectedSortForUser(); // ソート対象
+    const sortOrderForUser = useSortOrderForUser();              // 'asc' or 'desc'
+
+    if (!users.value.length) return [];
+
+    // 1. 検索フィルタリング
+    const filteredUsersBySearch = getFilteredDataBySearch(
+        users.value,
+        searchText.value,
+        ['username', 'email', 'role', 'account_status'] // Userで検索対象とするキー
+    );
+
+    // 2. ソート処理
+    return getSortedData(
+        filteredUsersBySearch,
+        selectedSortForUser.value,
+        sortOrderForUser.value
+    );
+});
