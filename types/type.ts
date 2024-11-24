@@ -39,7 +39,13 @@ export type UserProfile = {
 // ====================
 
 /**
- * ソート可能な項目
+ * ソート可能な項目（todos）
  * @typedef {'id' | 'title' | 'deadline'} SortType
  */
 export type SortType = 'id' | 'title' | 'deadline';
+
+/**
+ * ソート可能な項目（users）
+ * @typedef {'email' | 'username' | 'account_status'} SortType
+ */
+export type UserSortType = 'email' | 'username' | 'role' |  'account_status';
