@@ -64,11 +64,14 @@ export const useIsEmptyAfterSearch = () => useState<boolean>('isEmptyAfterSearch
 
 // ======= ユーザー関連の状態管理 =======
 
-// 登録されている全ユーザー
-export const useAllUsers = () => useState<Partial<ExtendedUser>[]>('allUsers', () => []);
+  // 登録されている全ユーザー
+  export const useAllUsers = () => useState<Partial<ExtendedUser>[]>('allUsers', () => []);
 
-// ソート順序
-export const useSortOrderForUser = () => useState<'asc' | 'desc'>('sortOrderForUser', () => 'asc');
+  // ソート順序
+  export const useSortOrderForUser = () => useState<'asc' | 'desc'>('sortOrderForUser', () => 'asc');
 
-// ソート項目（usersテーブル）
-export const useSelectedSortForUser = () => useState<UserSortType>('selectedSortForUser', () => 'username');
+  // ソート項目（usersテーブル）
+  export const useSelectedSortForUser = () => useState<UserSortType>('selectedSortForUser', () => 'username');
+
+  // Search時の値（idとdeadline、statusは検索対象外）
+  export const useSearchTextForUser = () => useState<string | null>('searchTextForUser', () => null);

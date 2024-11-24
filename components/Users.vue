@@ -47,6 +47,9 @@ onMounted(async () => {
                     <option value="desc">Desc</option>
                 </select>
             </div>
+
+            <!-- All Usersページ用の検索昨日のコンポーネント -->
+            <SearchForUsersPage />
         </div>
 
         <table class="table-for-all-users">

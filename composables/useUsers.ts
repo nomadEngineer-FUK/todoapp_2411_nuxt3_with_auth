@@ -175,7 +175,7 @@ export const fetchAllUsers = async (): Promise<Partial<ExtendedUser>[]> => {
 // @usersテーブル
 export const sortedUsersList = computed(() => {
     const users = useAllUsers();                   // 全ユーザー
-    const searchText = useSearchText();            // 検索文字列
+    const searchTextForUser = useSearchTextForUser();            // 検索文字列
     const selectedSortForUser = useSelectedSortForUser(); // ソート対象
     const sortOrderForUser = useSortOrderForUser();              // 'asc' or 'desc'
 
@@ -184,8 +184,8 @@ export const sortedUsersList = computed(() => {
     // 1. 検索フィルタリング
     const filteredUsersBySearch = getFilteredDataBySearch(
         users.value,
-        searchText.value,
-        ['username', 'email', 'role', 'account_status'] // Userで検索対象とするキー
+        searchTextForUser.value,
+        ['username', 'email'] // Userで検索対象とするキー
     );
 
     // 2. ソート処理
