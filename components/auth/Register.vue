@@ -2,10 +2,19 @@
 import { ref } from 'vue';
 import { useAuth } from '~/composables/useAuth';
 
-const { signUp, user } = useAuth();
+/**
+ * 認証関連の機能を取得
+ */
+const { signUp, authUser } = useAuth();
+
+/**
+ * ユーザーが入力するデータを保持
+ * @type {Ref<string>}
+ */
 const username = ref<string>(''); // ユーザーが入力したユーザー名
 const email = ref<string>('');    // ユーザーが入力したメールアドレス
 const password = ref<string>(''); // ユーザーが入力したパスワード
+
 const isLoading = ref(false);     // ローディングフラグ
 const errorMessage = ref<string | null>(null); // サインアップエラーメッセージ
 
@@ -17,7 +26,7 @@ const errorMessage = ref<string | null>(null); // サインアップエラーメ
  * @description 入力したメールとパスワードでユーザーの新規登録を行う。
  *              成功時はユーザー情報が返され、エラー時にはエラーメッセージを設定。
  */
-const registerUser = async () => {
+const registerUser = async (): Promise<void> => {
     errorMessage.value = null;  // エラーメッセージをリセット
 
     // 入力項目が空欄でないか確認するバリデーション
@@ -51,7 +60,7 @@ const registerUser = async () => {
             <p class="error-message">*{{ errorMessage }}</p>
         </div>
 
-        <div class="signup-container" v-if="!user">
+        <div class="signup-container" v-if="!authUser">
             <h2 class="signup-header">Sign Up for an Account</h2>
             <h4 class="signup-header">Provide your account information</h4>
 

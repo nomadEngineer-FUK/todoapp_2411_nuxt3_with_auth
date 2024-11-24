@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useSearchText } from '~/composables';
 
+// 検索欄に入力された文字列の状態管理
 const searchText = useSearchText();
 
 </script>
@@ -15,7 +16,6 @@ const searchText = useSearchText();
             v-model="searchText"
         >
     </div>
-
 </template>
 
 <style>

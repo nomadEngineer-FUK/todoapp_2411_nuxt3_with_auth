@@ -1,8 +1,8 @@
 import type { Todo, SortType, ExtendedUser, UserSortType } from '../types/type';
 
-import type { User } from '@supabase/supabase-js'; // user情報
-
-// ======= todo関連の状態管理 =======
+// ==========================================
+//  ** Todo関連の状態管理 **
+// ==========================================
 
   // todo一覧
   export const useTodos = () => useState<Todo[]>('todos', () => []);
@@ -26,9 +26,11 @@ import type { User } from '@supabase/supabase-js'; // user情報
   export const useIsCompletion = () => useState<boolean>('isCompletion', () => false);
 
 
-// ======= ソート関連の状態管理 =======
+// ==========================================
+//  ** ソート関連の状態管理 **
+// ==========================================
 
-  // ソート順序
+  // ソート順序（"asc" or "desc"）
   export const useSortOrder = () => useState<'asc' | 'desc'>('sortOrder', () => 'asc');
 
   // ソート項目（todoのテーブル）
@@ -41,8 +43,9 @@ import type { User } from '@supabase/supabase-js'; // user情報
 export const useIsEmptyAfterSearch = () => useState<boolean>('isEmptyAfterSearch', () => false);
 
 
-
-// ======= 認証関連の状態管理 =======
+// ==========================================
+//  ** 認証関連の状態管理 **
+// ==========================================
 
   // 現在のユーザー情報
   export const useAuthUser = () => useState<ExtendedUser | null>('authUser', () => null);
@@ -50,9 +53,12 @@ export const useIsEmptyAfterSearch = () => useState<boolean>('isEmptyAfterSearch
   // 認証完了のフラグ
   export const useIsAuthenticated = () => useState<boolean>('isAuthenticated', () => false);
 
-// ======= プロフィール関連の状態管理 =======
 
-  // プロフィールを編集用にuser情報を保持
+// ==========================================
+//  ** プロフィール関連の状態管理 **
+// ==========================================
+
+// プロフィールを編集用に保持
   export const useNewAuthUser = () => useState<Partial<ExtendedUser>>('newAuthUser', () => ({
       id: '',
       username: 'sample',
@@ -62,12 +68,14 @@ export const useIsEmptyAfterSearch = () => useState<boolean>('isEmptyAfterSearch
   }));
 
 
-// ======= ユーザー関連の状態管理 =======
+// ==========================================
+//  ** ユーザー関連の状態管理 **
+// ==========================================
 
   // 登録されている全ユーザー
   export const useAllUsers = () => useState<Partial<ExtendedUser>[]>('allUsers', () => []);
 
-  // ソート順序
+  // ソート順序（ユーザー用）
   export const useSortOrderForUser = () => useState<'asc' | 'desc'>('sortOrderForUser', () => 'asc');
 
   // ソート項目（usersテーブル）

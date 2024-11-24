@@ -13,8 +13,12 @@ const { $supabase } = useNuxtApp();
 const { checkUser } = useAuth();
 const allUsers = useAllUsers();
 
-// セッションの有効性を確認
-// 呼び出し元にて、他2つの関数含めた3つ全ての戻り値がtrueの場合に、updateProfileがtrueを返す
+/**
+ * 認証セッションの有効性を確認
+ * @async
+ * @function checkUserValid
+ * @returns {Promise<false | void>} 有効でない場合は false を返す
+ */
 const checkUserValid = async (): Promise<false | void> => {
     const isUserValid = await checkUser(); // ユーザーの認証状態を取得
     if (!isUserValid) {
@@ -24,21 +28,30 @@ const checkUserValid = async (): Promise<false | void> => {
 };
 
 /**
- * ログ関数: 統一的なログ出力を行う
- * @param message ログメッセージ
- * @param data 任意の追加データ
+ * 統一的なログ出力を行う関数
+ * @function errMsgAboutSessionOrAuth
+ * @description セッションまたは認証エラー時のログメッセージを出力
  */
 const errMsgAboutSessionOrAuth = () => {
     console.log('Session is invalid or user is not authenticated');
 };
 
+/**
+ * プロフィールに関連する機能を提供するComposable
+ * @returns {Object} プロフィール関連の関数と状態
+ */
 export const useUserProfile = () => {
 
     const authUser = useAuthUser();     // 認証されたユーザー情報を取得
     let newAuthUser = useNewAuthUser(); // 編集用
 
-
-    // 現在ログインしているアカウントの情報を取得
+    /**
+     * 現在ログイン中のユーザーのプロフィール情報を取得
+     * @async
+     * @function loadUserProfile
+     * @param {string} userId - ログイン中のユーザーID
+     * @returns {Promise<void>} 成功時はauthUserを更新
+     */
     const loadUserProfile = async (userId: string) => {
         console.log('Loading profile for userId:', userId);
         if (!userId) {
@@ -68,8 +81,13 @@ export const useUserProfile = () => {
         }
     };
 
-
-    // メイン関数：プロフィール更新
+    /**
+     * プロフィール情報を更新
+     * @async
+     * @function updateProfile
+     * @param {string} userId - 更新対象のユーザーID
+     * @returns {Promise<boolean>} 成功時はtrue、失敗時はfalse
+     */
     const updateProfile = async (userId: string): Promise<boolean> => {
 
         // セッションの有効性を確認
@@ -105,7 +123,13 @@ export const useUserProfile = () => {
         return true;
     };
 
-    // 1. usersテーブルの更新
+    /**
+     * usersテーブルを更新
+     * @async
+     * @function updateUsersTable
+     * @param {string} userId - 更新対象のユーザーID
+     * @returns {Promise<boolean>} 成功時はtrue
+     */
     const updateUsersTable = async (userId: string): Promise<boolean> => {
         const { username, email, role, account_status } = newAuthUser.value;
         const { data, error } = await $supabase
@@ -121,7 +145,13 @@ export const useUserProfile = () => {
         return true;
     };
 
-    // 2. Supabase Auth のメールアドレス更新
+    /**
+     * Supabase Auth のメールアドレスを更新
+     * @async
+     * @function updateAuthEmail
+     * @param {string} email - 更新後のメールアドレス
+     * @returns {Promise<boolean>} 成功時はtrue
+     */
     const updateAuthEmail = async (email: string): Promise<boolean> => {
         const { data, error } = await $supabase.auth.updateUser({ email });
 
@@ -133,7 +163,12 @@ export const useUserProfile = () => {
         return true;
     };
 
-    // 3. セッション再取得
+    /**
+     * 認証セッションを再取得
+     * @async
+     * @function refreshSession
+     * @returns {Promise<boolean>} 成功時はtrue
+     */
     const refreshSession = async (): Promise<boolean> => {
         const { data, error } = await $supabase.auth.getSession();
 
@@ -152,9 +187,12 @@ export const useUserProfile = () => {
     };
 };
 
-
-
-// アプリに登録されているユーザー一覧を取得
+/**
+ * ユーザー一覧をデータベースから取得
+ * @async
+ * @function fetchAllUsers
+ * @returns {Promise<Partial<ExtendedUser>[]>} ユーザーリスト
+ */
 export const fetchAllUsers = async (): Promise<Partial<ExtendedUser>[]> => {
 
     // DBからユーザーの全データ取得
@@ -170,9 +208,11 @@ export const fetchAllUsers = async (): Promise<Partial<ExtendedUser>[]> => {
     return allUsers.value = data as Partial<ExtendedUser>[];
 };
 
-
-// フィルタとソートされたTodoリストを返す計算プロパティ
-// @usersテーブル
+/**
+ * フィルタリングとソートが適用されたユーザーリストを計算する
+ * @constant sortedUsersList
+ * @returns {Partial<ExtendedUser>[]} フィルタとソート後のユーザーリスト
+ */
 export const sortedUsersList = computed(() => {
     const users = useAllUsers();                   // 全ユーザー
     const searchTextForUser = useSearchTextForUser();            // 検索文字列

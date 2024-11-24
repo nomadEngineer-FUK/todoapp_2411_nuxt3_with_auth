@@ -11,7 +11,11 @@ const { isAuthenticated, checkUser } = useAuth();
 const isCheckComplete = ref(false);
 
 /**
- * ページマウント時に認証チェックを実行
+ * ページがマウントされたときにユーザー認証を確認
+ * @async
+ * @function onMounted
+ * @description `checkUser` を使用してユーザーの認証状態を確認し、
+ *               認証チェックが完了したら `isCheckComplete` を true に設定します。
  */
 onMounted(async () => {
   console.log('Running checkUser on mounted');
@@ -21,14 +25,16 @@ onMounted(async () => {
 });
 
 /**
- * 認証状態の変化に応じてタスクデータの取得
+ * 認証状態に応じたタスクデータの取得
+ * @function watchEffect
+ * @description `isAuthenticated` の状態を監視し、認証済みであれば `fetchTodos` を実行してタスクデータを取得します。
  */
 watchEffect(() => {
   if (isAuthenticated.value) {
     console.log('Authenticated, fetching todos...');
     fetchTodos();
   }
-})
+});
 </script>
 
 <template>

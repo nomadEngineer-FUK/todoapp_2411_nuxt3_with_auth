@@ -1,43 +1,57 @@
 <script setup lang="ts">
+/**
+ * 認証およびユーザー操作に関連するComposableをインポート
+ */
 import { useAuth } from '~/composables/useAuth';
 import { onMounted, ref } from 'vue';
 import { useUserProfile } from '~/composables/useUsers';
 import { useAuthUser, useNewAuthUser } from "~/composables";
 
-const { checkUser, isAdmin } = useAuth();
-const { loadUserProfile, updateProfile } = useUserProfile();
-const authUser = useAuthUser();  // 認証済みのユーザー情報
-const newAuthUser = useNewAuthUser(); // 編集用のユーザー情報
+/**
+ * 認証に関連する関数と状態
+ */
+const { checkUser, isAdmin } = useAuth(); // ユーザーの認証状態や管理者権限の確認を提供
+const { loadUserProfile, updateProfile } = useUserProfile(); // ユーザープロファイルの読み込みと更新を提供
+const authUser = useAuthUser();       // 現在ログインしている認証済みユーザー情報
+const newAuthUser = useNewAuthUser(); // 編集用のユーザー情報（認証済み情報のコピー）
 
-const isProfileLoaded = ref(false);
-const isProfileEditing = ref(false);
+const isProfileLoaded = ref(false);  // プロファイルのロード状態
+const isProfileEditing = ref(false); // プロファイル編集モードの状態
 
 const errorMessage = ref<string | null>(null); // バリデーションエラーメッセージ
 
+/**
+ * ページマウント時に実行される処理
+ * 認証チェックとプロファイル情報の読み込みを行う
+ */
 onMounted(async () => {
     isProfileLoaded.value = false;
 
-    const isUserValid = await checkUser();
+    const isUserValid = await checkUser(); // ユーザーが認証されているか確認
     if (!isUserValid) {
         console.error('User is not authenticated');
         return;
     }
 
     if (authUser.value?.id) {
-        await loadUserProfile(authUser.value.id);
-        newAuthUser.value = { ...authUser.value }; // 編集用の情報をコピー
+        await loadUserProfile(authUser.value.id);  // ユーザーのプロファイルを読み込む
+        newAuthUser.value = { ...authUser.value }; // 編集用のプロファイルデータを設定
     }
 
     isProfileLoaded.value = true;
 });
 
-// profileの更新
+/**
+ * プロファイルの更新を処理する関数
+ * @async
+ * @returns {Promise<void>}
+ */
 const handleUpdateProfile = async () => {
 
-    if (!validateProfile()) return; // バリデーションを実行
+    if (!validateProfile()) return; // プロファイルのバリデーションを実行
 
     if (authUser.value?.id) {
-        const success = await updateProfile(authUser.value.id);
+        const success = await updateProfile(authUser.value.id); // プロファイルを更新
 
         if (success) {
             alert('Profile updated successfully');
@@ -49,21 +63,30 @@ const handleUpdateProfile = async () => {
     }
 };
 
-// 編集用のプロファイルをリセットする関数
+/**
+ * 編集用プロファイルデータをリセットする関数
+ */
 const resetNewAuthUser = () => {
     if (authUser.value) {
         newAuthUser.value = { ...authUser.value };
     }
 };
 
-// 編集のキャンセル
+/**
+ * 編集モードをキャンセルする関数
+ * 編集データをリセットして編集モードを終了する
+ */
 const cancelEdit = (): void => {
-    resetNewAuthUser();
+    resetNewAuthUser(); // 編集用のデータをリセット
     isProfileEditing.value = false
 };
 
-// バリデーション関数
+/**
+ * プロファイルのバリデーションを行う関数
+ * @returns {boolean} バリデーションが成功したかどうか
+ */
 const validateProfile = (): boolean => {
+    
     // 空白をトリムしてチェック
     if (!newAuthUser.value?.username?.trim()) {
         errorMessage.value = "Usernameを1文字以上入力してください";
@@ -77,7 +100,6 @@ const validateProfile = (): boolean => {
 
     return true;
 };
-
 </script>
 
 <template>

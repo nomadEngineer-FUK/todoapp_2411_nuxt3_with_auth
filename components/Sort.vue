@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 
-// 状態管理を取得
+/**
+ * Todoリストの状態管理
+ */
 const todos = useTodos();               // DBから取得したTodo一覧
 const sortOrder = useSortOrder();       // ソートの種類
 const selectedSort = useSelectedSort(); // ソート順の選択肢
@@ -13,12 +15,25 @@ const isCompletion = useIsCompletion(); // 完了・未完了
  * @returns {void}
  */
 onMounted(() => {
+    // ローカルストレージに保存されているソート状態を取得
     const storedSort = localStorage.getItem('selectedSort');
 
-    if (storedSort && (storedSort === 'id' || storedSort === 'title' || storedSort === 'deadline')) {
-    selectedSort.value = storedSort as 'id' | 'title' | 'deadline'; // ローカルストレージに保存されているソート状態を反映
+    // 有効なソート条件（id, title, deadline）であれば選択状態に反映
+    if (storedSort
+        &&
+        (
+            storedSort === 'id' ||
+            storedSort === 'title' ||
+            storedSort === 'deadline'
+        )
+    ) {
+
+        // ローカルストレージに保存されているソート状態を反映
+        selectedSort.value = storedSort as 'id' | 'title' | 'deadline';
+
     } else {
-    selectedSort.value = 'id'; // デフォルトは 'id'
+        // デフォルトは 'id'
+        selectedSort.value = 'id';
     }
 });
 
@@ -27,7 +42,7 @@ onMounted(() => {
  * @function toggleShowCompleted
  * @returns {void}
  */
-const toggleShowCompleted = () => {
+const toggleShowCompleted = (): void => {
     isCompletion.value = !isCompletion.value;
 };
 </script>

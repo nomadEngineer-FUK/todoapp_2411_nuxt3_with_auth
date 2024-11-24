@@ -59,14 +59,21 @@ const loginUser = async (): Promise<void> => {
 };
 
 /**
- * ページロード時にユーザーの認証状態を確認
+ * ページロード時にユーザーの認証状態を確認する
+ * @function onMounted
  * @async
+ * @returns {Promise<void>} 認証チェックの非同期処理
  */
-onMounted(async () => {
+onMounted(async (): Promise<void> => {
     await checkUser();
 });
 
-watchEffect(() => {
+/**
+ * 認証状態が変化したときに監視し、認証済みの場合はリダイレクトを実行する
+ * @function watchEffect
+ * @returns {void}
+ */
+watchEffect((): void => {
     if (isAuthenticated.value) {
         router.push('/todos');
     }

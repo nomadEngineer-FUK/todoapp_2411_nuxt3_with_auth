@@ -193,10 +193,11 @@ const checkUserSession = async (): Promise<User | null> => {
 };
 
 
-// JSDoc書き直し！！！
-
-// フィルタとソートされたTodoリストを返す計算プロパティ
-// @ todos
+/**
+ * フィルタリングおよびソートされたTodoリストを返す計算プロパティ
+ * @constant sortedTodosList
+ * @returns {Todo[]} フィルタリングおよびソートされたTodoリスト
+ */
 export const sortedTodosList = computed(() => {
     const todos = useTodos();
     const searchText = useSearchText();
@@ -225,13 +226,15 @@ export const sortedTodosList = computed(() => {
         selectedSort.value,
         sortOrder.value
     );
-
 });
-
-
 
 /**
  * データを検索する汎用関数
+ * @template T
+ * @param {T[]}           data       - フィルタリング対象のデータ配列
+ * @param {string | null} searchText - 検索する文字列（部分一致）
+ * @param {(keyof T)[]}   filterKeys - 検索対象とするオブジェクトのキーの配列
+ * @returns {T[]} フィルタリングされたデータ配列
  */
 export const getFilteredDataBySearch = <T>(
     data: T[],
@@ -256,6 +259,11 @@ export const getFilteredDataBySearch = <T>(
 
 /**
  * データをソートする汎用関数
+ * @template T
+ * @param {T[]}            data         - ソート対象のデータ配列
+ * @param {keyof T}        selectedSort - ソートの基準となるキー
+ * @param {'asc' | 'desc'} sortOrder    - ソート順（昇順または降順）
+ * @returns {T[]} ソートされたデータ配列
  */
 export const getSortedData = <T>(
     data: T[],
@@ -296,113 +304,16 @@ export const getSortedData = <T>(
 }
 
 /**
- * 完了/未完了フィルタリング
- * ※ Todo に限定したロジックは個別に分ける
+ * 完了/未完了でフィルタリングを行う関数
+ * @param {Todo[]}  todos        - フィルタリング対象のTodoリスト
+ * @param {boolean} isCompletion - 完了タスクを表示するかのフラグ（true: 完了、false: 未完了）
+ * @returns {Todo[]} フィルタリングされたTodoリスト
  */
 export const getFilteredTodosByCompletion = (todos: Todo[], isCompletion: boolean): Todo[] => {
     return isCompletion
         ? todos.filter(todo => todo.status)   // 完了todo
         : todos.filter(todo => !todo.status); // 未完了todo
 };
-
-
-
-/**
- * フィルタとソートされたTodoリストを返す計算プロパティ
- * 
- * [処理の流れ]
- *  1. 各種状態の取得
- *  2. 完了・未完了のフィルタリング
- *  3. ソート処理
- * 
- * @computed
- * @returns {Todo[]}
- */
-
-// export const sortedTodosList = computed(() => {
-//     const todos = useTodos();               // Todoリスト
-//     const searchText = useSearchText();     // 検索文字列
-//     const isCompletion = useIsCompletion(); // 完了/未完了フィルタリング
-//     const selectedSort = useSelectedSort(); // ソート対象
-//     const sortOrder = useSortOrder();       // ソート順（昇順/降順）
-    
-//     // todosが無い場合は空の配列を返す
-//     if (!todos.value.length) return [];
-
-//     // 1. 検索フィルタリング
-//     const filteredTodosBySearch = getFilteredTodosBySearch(todos.value, searchText.value);
-
-//     // 2. 完了/未完了フィルタリング
-//     const filteredTodosByCompletion = getFilteredTodosByCompletion(filteredTodosBySearch, isCompletion.value);
-
-//     // 検索結果が空か否かをチェック
-//     if (!filteredTodosByCompletion.length) return [];
-
-//     // 3. ソート処理
-//     const sortedTodos = getSortedTodos(filteredTodosByCompletion, selectedSort.value, sortOrder.value);
-
-//     return sortedTodos;
-// });
-
-// /**
-//  *  1. 検索フィルタリング
-//  */
-// export const getFilteredTodosBySearch = (todos: Todo[], searchText: string | null): Todo[] => {
-//     if (!searchText) return todos;
-
-//     const lowerSearchText = searchText.toLowerCase(); // 大文字小文字を区別しない
-//     return todos.filter((todo) =>
-//         todo.title.toLowerCase().includes(lowerSearchText) ||
-//         todo.detail?.toLowerCase().includes(lowerSearchText)
-//     );
-// };
-
-// /**
-//  * 2. 完了/未完了フィルタリング
-//  */
-// export const getFilteredTodosByCompletion = (todos: Todo[], isCompletion: boolean): Todo[] => {
-//     return isCompletion
-//         ? todos.filter(todo => todo.status)   // 完了todo
-//         : todos.filter(todo => !todo.status); // 未完了todo
-// };
-
-// /**
-//  * 3. ソート処理
-//  */
-// export const getSortedTodos = (
-//     todos: Todo[],
-//     selectedSort: keyof Todo,
-//     sortOrder: 'asc' | 'desc'
-// ): Todo[] => {
-//     return [...todos].sort((a, b) => {
-//         const fieldA = a[selectedSort] as unknown as string | number;
-//         const fieldB = b[selectedSort] as unknown as string | number;
-
-//         // ソート対象が `deadline` の場合
-//         if (selectedSort === 'deadline') {
-//             const dateA = fieldA ? new Date(fieldA as string).getTime() : Infinity;
-//             const dateB = fieldB ? new Date(fieldB as string).getTime() : Infinity;
-
-//             if (!fieldA) return 1;
-//             if (!fieldB) return -1;
-
-//             return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-//         }
-
-//         // ソート対象が文字列の場合
-//         if (typeof fieldA === 'string' && typeof fieldB === 'string') {
-//             return sortOrder === 'asc'
-//                 ? fieldA.localeCompare(fieldB)
-//                 : fieldB.localeCompare(fieldA);
-//         }
-//         // ソート対象が数値の場合
-//         return sortOrder === 'asc'
-//             ? (fieldA as number) - (fieldB as number)
-//             : (fieldB as number) - (fieldA as number);
-        
-//     });
-// };
-
 
 /**
  * 指定された文字列が有効な日付（YYYY-MM-DD形式）かを判定する関数

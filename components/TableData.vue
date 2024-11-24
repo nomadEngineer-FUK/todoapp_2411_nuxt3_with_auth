@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import type { Todo } from '../types/type';
 import { onMounted, ref } from 'vue';
-import { useIsEmptyAfterSearch } from '~/composables';
 
-// 状態管理
+/**
+ * Todo一覧の状態管理
+ */
 const todos = useTodos();     // DBから取得したTodo一覧
 const isLoading = ref(true);  // ローディングフラグ
-const { authUser, isAdmin } = useAuth();
+const { authUser, isAdmin } = useAuth(); // 認証済みユーザー情報と管理者権限情報
 
-onMounted(async() => {
+/**
+ * コンポーネントがマウントされた際に実行される処理
+ * Todo一覧をデータベースから取得し、ローディングを解除
+ * @function onMounted
+ * @async
+ * @returns {Promise<void>}
+ */
+onMounted(async (): Promise<void> => {
     if (!todos.value.length) {
         await fetchTodos();
     };
@@ -21,7 +29,7 @@ onMounted(async() => {
  * @param {Todo} todo - 編集対象のTodoオブジェクト
  * @returns {void}
  */
-const editTodo = (todo: Todo) => {
+const editTodo = (todo: Todo): void => {
     setEditMode(todo); // 対象のタスク情報を引数として編集モード
 };
 
@@ -35,7 +43,6 @@ const canEditAndDelete = (todo: Todo): boolean => {
     // 管理者か、自分が作成したTodoであれば許可
     return isAdmin.value || todo.user_id === authUser.value?.id;
 };
-
 </script>
 
 <template>
