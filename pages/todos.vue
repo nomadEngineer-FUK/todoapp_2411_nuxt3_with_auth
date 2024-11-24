@@ -5,37 +5,52 @@ import TableInput from '~/components/TableInput.vue';
 import TableOutput from '~/components/TableOutput.vue';
 import { useAuth } from '~/composables/useAuth';
 import { watchEffect, onMounted } from 'vue';
+import checker from "vite-plugin-checker";
 
-const { isAuthenticated} = useAuth();
+const { isAuthenticated, checkUser } = useAuth();
+const isCheckComplete = ref(false);
 
 /**
- * 認証状態の変化に応じてタスクデータの取得を行うウォッチャー
- * @function watchEffect
- * @returns {void}
- * @description 認証状態が変化した際に、ログイン済みであればタスクデータを取得する。
+ * ページマウント時に認証チェックを実行
  */
- watchEffect(() => {
-  console.log('isAuthenticated in todos.vue: ', isAuthenticated.value);
+onMounted(async () => {
+  console.log('Running checkUser on mounted');
+  await checkUser();
+  isCheckComplete.value = true;
+  console.log('Authentication check complete:', isAuthenticated.value);
+});
 
+/**
+ * 認証状態の変化に応じてタスクデータの取得
+ */
+watchEffect(() => {
   if (isAuthenticated.value) {
-    // ログイン済みの場合、タスクデータを取得
+    console.log('Authenticated, fetching todos...');
     fetchTodos();
   }
-});
+})
 </script>
 
 <template>
+  <!-- ローディング中の表示 -->
+  <div v-if="!isCheckComplete">
+    <p>Loading...</p>
+  </div>
+
+  <div v-else>
     <!-- 未ログインの場合、ログイン画面を表示 -->
     <div v-if="!isAuthenticated">
-        <Login />
+      <Login />
     </div>
 
     <!-- ログイン済みの場合、todo一覧を表示 -->
     <div v-else>
-        <ClientOnly>
-            <TableInput />
-            <Sort />
-            <TableOutput />
-        </ClientOnly>
+      <ClientOnly>
+        <TableInput />
+        <Sort />
+        <Search />
+        <TableOutput />
+      </ClientOnly>
     </div>
+  </div>
 </template>

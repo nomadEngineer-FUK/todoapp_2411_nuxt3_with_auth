@@ -1,6 +1,10 @@
-// ====================
-//      Todo型定義
-// ====================
+import type { User } from "@supabase/supabase-js";
+// ExtendedUser型を定義
+export interface ExtendedUser extends Omit<User, 'aud' | 'role'>  {
+  username?: string | null;
+  account_status?: string | null;
+  role?: string | null;
+}
 
 /**
  * Todoの型
@@ -21,8 +25,14 @@ export type Todo = {
     id: number;
     user_id: string;
     role?: string;
-  };
+};
 
+export type UserProfile = {
+    username: string;
+    email: string;
+    role: string;
+    account_status: string;
+}
 
 // ====================
 //   ソート型定義

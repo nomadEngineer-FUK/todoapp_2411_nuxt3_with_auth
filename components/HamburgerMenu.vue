@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useAuth } from '~/composables/useAuth';
+
+// cspell:ignore Nuxt
 
 const { isAuthenticated, logout } = useAuth();
 const menuOpen = ref<boolean>(false);
-
-
 
 /**
  * メニューの開閉状態を切り替える関数
@@ -42,9 +42,21 @@ const logoutUser = async (): Promise<void> => {
         <nav v-if="menuOpen" class="menu">
             <ul>
                 <li>
-                    <NuxtLink to="/" @click="closeMenu">Home</NuxtLink>
+                    <NuxtLink to="/" @click="closeMenu" class="menu-link">
+                        Home
+                    </NuxtLink>
                 </li>
-                <li v-if="isAuthenticated" @click="logoutUser" class="logout">
+                <li>
+                    <NuxtLink to="/profile" @click="closeMenu" class="menu-link">
+                        Profile
+                    </NuxtLink>
+                </li>
+                <li>
+                    <NuxtLink to="/users" @click="closeMenu" class="menu-link">
+                        All Users
+                    </NuxtLink>
+                </li>
+                <li v-if="isAuthenticated" @click="logoutUser" class="menu-link logout">
                     Logout
                 </li>
             </ul>
@@ -68,22 +80,33 @@ const logoutUser = async (): Promise<void> => {
     z-index: 10;
     width: 150px;
     border: 1px solid rgba(100,100,100,0.2);
-    background-color: #fff;
-    margin-top: 0.5rem; /* TodoHeaderのMarginを考慮 */
+    margin-top: 0.5rem;
+    border-radius: 5px;
 }
 .menu ul {
     list-style-type: none;
     padding: 0;
 }
 .menu li {
-    padding: 0.5rem 3rem;
-
+    height: 2rem;
 }
-.menu li:hover {
+.menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    margin: 0.25rem 0;
+    padding: 0.5rem 0;
+    border-radius: 5px;  
+}
+.menu-link:hover {
     background-color: rgba(0, 100, 200, 0.2);
     transition: 0.3s;
 }
-.menu li a{
-    text-decoration: none;
+.logout {
+    cursor: pointer;
 }
 </style>

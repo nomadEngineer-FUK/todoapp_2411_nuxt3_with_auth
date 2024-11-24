@@ -1,7 +1,8 @@
 import type { User } from "@supabase/supabase-js";
 import { useNuxtApp } from "nuxt/app";
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import { useAuthUser, useIsAuthenticated } from "../composables/index";
+import type { ExtendedUser } from "~/types/type";
 
 /**
  * 認証関連のユーティリティを提供するcomposable
@@ -9,69 +10,74 @@ import { useAuthUser, useIsAuthenticated } from "../composables/index";
  */
 export const useAuth = () => {
     const { $supabase } = useNuxtApp();
-    const router = useRouter(); // Vue Router を使ってリダイレクト処理を行う
-    const user = useAuthUser(); // 認証されたユーザー情報を取得
+    const router = useRouter();     // Vue Router を使ってリダイレクト処理を行う
+    const authUser = useAuthUser();     // 認証されたユーザー情報を取得
     const isAuthenticated = useIsAuthenticated(); // 認証状態を取得
 
-    const INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 60分で自動タイムアウト
+    const INACTIVITY_TIMEOUT = 60 * 60 * 1000;          // 60分で自動タイムアウト
     const timeoutId = ref<NodeJS.Timeout | null>(null); // タイムアウトIDを管理
-    
+
+    /**
+     * 共通エラーログ出力関数
+     */
+    const logError = (message: string, error?: any) => {
+        console.error(`[Auth Error] ${message}`, error);
+    };
+
     /**
      * アカウント登録関数
      * @async
      * @param   {string}       email     - 登録するユーザーのメールアドレス
      * @param   {string}       password  - ユーザーのパスワード
+     * @param   {string}       role      - ユーザーの役割
+     * @param   {string}       username  - ユーザー名
      * @param   {Ref<boolean>} isLoading - ローディング状態の参照
      * @returns {Promise<User | null>} 登録したユーザー情報を返し、失敗した場合はnull
      */
-    const signUp = async (email: string, password: string, isLoading: Ref<boolean>): Promise<User | null> => {
+    const signUp = async (username: string, email: string, password: string, isLoading: Ref<boolean>): Promise<Partial<ExtendedUser> | null> => {
         isLoading.value = true; // ローディング開始
 
-        try {
-            // ストアドプロシージャを使用してユーザー数を取得
-            const { data: userCountData, error: countError } = await $supabase.rpc('get_user_count');
+        // ストアドプロシージャを使用してユーザー数を取得
+        const {data: userCountData, error: countError} = await $supabase.rpc('get_user_count');
 
-            if (countError) throw new Error('Failed to check user count.');
+        if (countError) {
+            logError('Failed to check user count.', countError);
+            isLoading.value = false;
+            return null;
+        }
 
-            
-            // ユーザー数を変数に格納
-            const existingUserCount = userCountData || 0;
-            console.log('existingUserCount: ', existingUserCount)
+        // ユーザー数を変数に格納
+        const existingUserCount = userCountData || 0;
 
-            // アカウント登録のフォームに入力した内容を取得
-            const { data, error } = await $supabase
-                .auth.signUp({ email, password });
-            if (error) throw new Error(error.message);
+        // アカウント登録のフォームに入力した内容を取得
+        const {data, error} = await $supabase.auth.signUp({email, password});
+        if (error || !data?.user) {
+            logError('Signup failed', error);
+            isLoading.value = false;
+            return null;
+        }
 
-            user.value = data.user || null;
-            if (user.value) {
+        // 登録したユーザー情報を取得
+        const newUser = data.user || null;
+        const role = (existingUserCount) === 0 ? 'admin' : 'user';
 
-                // 最初のユーザーなら「admin」、それ以降は「user」として設定
-                const role = (existingUserCount === 0) ? 'admin' : 'user';
+        // ユーザー情報を挿入
+        const {error: insertError} = await $supabase
+            .from('users')
+            .insert([{
+                id: newUser.id,
+                email: newUser.email,
+                role: role,
+                username: username,
+                account_status: 'active'
+            }]);
 
-                // ユーザー情報の挿入
-                const { error: insertError } = await $supabase
-                    .from('users')
-                    .insert([{
-                        id: user.value.id,
-                        email: user.value.email,
-                        role: role
-                    }]);
-                
-                if (insertError) throw new Error('User role assignment failed.');
+        if (insertError) logError('User role assignment failed', insertError);
 
-                // 登録成功後にメールでの認証を促すページにリダイレクト
-                await router.push('/verify-email');
-            };
-
-
-        } catch (err) {
-            console.error('Signup error:', err);
-        } finally {
-            isLoading.value = false; // ローディング終了
-        };
-        return user.value;
-    };
+        isLoading.value = false;
+        await router.push('/verify-email');
+        return authUser.value;
+    }
 
     /**
      * ログイン関数
@@ -81,28 +87,23 @@ export const useAuth = () => {
      * @param {Ref<boolean>} isLoading - ローディング状態の参照
      * @returns {Promise<User | null>} ログインしたユーザー情報を返し、失敗した場合はnull
      */
-    const login = async (email: string, password: string, isLoading: Ref<boolean>): Promise<User | null> => {
+    const login = async (email: string, password: string, isLoading: Ref<boolean>): Promise<Partial<ExtendedUser> | null> => {
         isLoading.value = true; // ローディング開始
 
-        try {
-            const { data, error } = await $supabase
-                .auth.signInWithPassword({ email, password });
-            
-            if (error) throw new Error(error.message);
+        const { data, error } = await $supabase.auth.signInWithPassword({email, password});
+        if (error || !data) {
+            logError('Login failed', error);
+            isLoading.value = false;
+            return null;
+        }
 
-            user.value = data.user || null; // 認証されたユーザー情報をセット
-            isAuthenticated.value = Boolean(data.user); // 認証状態をセット
+        authUser.value = data.user as ExtendedUser;
+        isAuthenticated.value = true;
+        saveUserToLocalStorage();
+        isLoading.value = false;
 
-            // 認証成功後にtodosページにリダイレクト
-            if (isAuthenticated.value) await router.push('/todos');
-
-        } catch (err) {
-            console.error('Login error:', err);
-        } finally {
-            isLoading.value = false; // ローディング終了
-        };
-
-        return user.value;
+        await router.push('/todos');
+        return authUser.value;
     };
 
     /**
@@ -112,87 +113,90 @@ export const useAuth = () => {
      */
     const logout = async (reason?: string): Promise<void> => {
         const { error } = await $supabase.auth.signOut();
-        if (error) throw new Error(error.message);
+        if (error) logError("Logout failed", error);
 
-        
-        user.value = null;             // ユーザー情報のクリア
-        isAuthenticated.value = false; // 認証状態のクリア
-        clearInactivityTimer();        // 自動ログアウト用タイマーのクリア
+        clearUserState(); // ユーザー情報の初期化
 
         // ログアウト時の理由をクエリパラメータに追加
         const redirectQuery = reason ? { query: { message: reason }} : {};
         await router.push({ path: '/', ...redirectQuery }); // ログアウト後にログインページにリダイレクト
     };
 
-    /**
-     * ユーザーの認証状態を確認する関数
-     * @async
-     */
-    const checkUser = async (): Promise<void> => {
-        const { data, error } = await $supabase.auth.getSession();
-        
-        if (error) return console.error('Error getting session:', error.message);
-  
-        // ユーザーがいない場合、ログインしていない状態をセットし、不要な処理をスキップ
-        if (!data?.session) {
-            user.value = null;
-            isAuthenticated.value = false;
-            console.log("No active session found. User is logged out.");
+    const mergeAdditionalUserInfo = async (): Promise<void> => {
+        if (!authUser.value) return;
+
+        const { data, error } = await $supabase
+            .from('users')
+            .select('username, account_status, role')
+            .eq('id', authUser.value.id)
+            .maybeSingle();
+
+        if (error || !data) {
+            logError("Failed to fetch additional user info", error);
             return;
         }
-        
-        // セッションのuserを確認
-        user.value = data?.session?.user as User ?? null;
-        isAuthenticated.value = !!user.value;
-  
-        if (isAuthenticated.value && user.value?.id) {
-          user.value.role = await fetchUserRole(user.value.id) || '';
-          console.log('User Role in checkUser():', user.value.role);
-        }
-  
-        console.log('isAuthenticated value:', isAuthenticated.value);
-        if (isAuthenticated.value) startInactivityTimer();
-      };
 
-      /**
-     * 指定されたユーザーIDの役割を取得する非同期関数
-     * @async
-     * @param {string} userId - 役割を取得するユーザーのID
-     * @returns {Promise<string | null>} ユーザーの役割、またはエラーの場合はnull
-     */
-    const fetchUserRole = async (userId: string): Promise<string | null> => {
-        const { $supabase } = useNuxtApp();
-  
-        const { data, error } = await $supabase
-          .from('users')
-          .select('role')
-          .eq('id', userId)
-          .maybeSingle();
-  
-          if (error) {
-            console.error('Failed to fetch user role:', error.message);
-            return null;
+        authUser.value = {
+            ...authUser.value,
+            ...data,
+            role: data.role
         };
-  
-        console.log('Fetched role:', data?.role); // デバッグ用ログ
-        return data?.role || null;
-      };
+    };
+
+    const checkUser = async (): Promise<boolean> => {
+            const { data: sessionData, error } = await $supabase.auth.getSession();
+
+            if (error || !sessionData?.session) {
+                if (error) {
+                    logError("Session check failed", error);
+                }
+                clearUserState();
+                return false;
+            }
+
+        authUser.value = sessionData.session.user as ExtendedUser;
+            await mergeAdditionalUserInfo();
+            isAuthenticated.value = true;
+
+            return true;
+    };
+
+
+    /**
+     * ユーザー情報の初期化
+     */
+    const clearUserState = () => {
+        authUser.value = null;
+        isAuthenticated.value = false;
+        clearInactivityTimer();
+        localStorage.removeItem('user');
+    };
+
+    const saveUserToLocalStorage = () => {
+        if (authUser.value) {
+            localStorage.setItem('user', JSON.stringify(authUser.value));
+        } else {
+            localStorage.removeItem('user');
+        }
+    };
 
     /**
      * アクティビティタイマーを開始して、非アクティブユーザーを自動ログアウトする関数
      */
     const startInactivityTimer = (): void => {
-        clearInactivityTimer(); // 既存のタイマーをクリア
+        if (isAuthenticated.value) {
+            clearInactivityTimer(); // 既存のタイマーをクリア
 
-        timeoutId.value = setTimeout(() => {
-            console.log('自動ログアウト: 一定時間操作がありませんでした');
-            logout('*You have been automatically logged out due to inactivity.'); // 自動ログアウト
-        }, INACTIVITY_TIMEOUT);
+            timeoutId.value = setTimeout(() => {
+                console.log('自動ログアウト: 一定時間操作がありませんでした');
+                logout('*You have been automatically logged out due to inactivity.'); // 自動ログアウト
+            }, INACTIVITY_TIMEOUT);
+        }
     };
-  
-  /**
-   * アクティビティタイマーをクリアする関数
-   */
+
+    /**
+     * アクティビティタイマーをクリアする関数
+     */
     const clearInactivityTimer = (): void => {
         if (timeoutId.value) clearTimeout(timeoutId.value);
         timeoutId.value = null;
@@ -210,16 +214,18 @@ export const useAuth = () => {
         window.addEventListener('mousemove', resetInactivityTimer);
         window.addEventListener('keydown', resetInactivityTimer);
         window.addEventListener('scroll', resetInactivityTimer);
-    };
+    }
 
     /**
      * 管理者かどうかを確認する関数
      * @returns {boolean} role：[Admin]true、[User]false
      */
-    const isAdmin = computed(() => user.value?.role === 'admin');
+    const isAdmin = computed(() => {
+        return authUser.value && authUser.value.role === 'admin'
+    });
 
     return {
-        user,
+        authUser,
         isAuthenticated,
         signUp,
         login,

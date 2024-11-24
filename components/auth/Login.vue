@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watchEffect } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import { useRoute, useRouter } from 'vue-router';
 
-const { login, user, checkUser, isAuthenticated } = useAuth();
+const { login, authUser, checkUser, isAuthenticated } = useAuth();
 const email = ref<string>('');
 const password = ref<string>('');
 const route =  useRoute();
@@ -62,14 +62,14 @@ const loginUser = async (): Promise<void> => {
  * ページロード時にユーザーの認証状態を確認
  * @async
  */
- onMounted(async () => {
-  await checkUser();
+onMounted(async () => {
+    await checkUser();
 });
 
 watchEffect(() => {
-  if (isAuthenticated.value) {
-    router.push('/todos');
-  }
+    if (isAuthenticated.value) {
+        router.push('/todos');
+    }
 });
 </script>
 
@@ -89,7 +89,7 @@ watchEffect(() => {
 
 
             <!-- 未ログインの場合 -->
-            <div class="login-container" v-if="!user">
+            <div class="login-container" v-if="!authUser">
                 <h2 class="login-header">Login to Your Account</h2>
                 
                 <form class="login-signup-form" @submit.prevent="loginUser">

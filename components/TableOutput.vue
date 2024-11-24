@@ -3,7 +3,7 @@
     <table class="table-for-output">
 
         <!-- テーブルのHeader -->
-         <!-- default.vue で表示-Authは後で考慮が必要 -->
+        <!-- default.vue で表示-Authは後で考慮が必要 -->
         <TableHeader />
 
         <!-- テーブルのBody -->

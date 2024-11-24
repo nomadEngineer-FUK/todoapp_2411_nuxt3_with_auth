@@ -13,13 +13,13 @@ const isCompletion = useIsCompletion(); // 完了・未完了
  * @returns {void}
  */
 onMounted(() => {
-  const storedSort = localStorage.getItem('selectedSort');
+    const storedSort = localStorage.getItem('selectedSort');
 
-  if (storedSort && (storedSort === 'id' || storedSort === 'title' || storedSort === 'deadline')) {
+    if (storedSort && (storedSort === 'id' || storedSort === 'title' || storedSort === 'deadline')) {
     selectedSort.value = storedSort as 'id' | 'title' | 'deadline'; // ローカルストレージに保存されているソート状態を反映
-  } else {
+    } else {
     selectedSort.value = 'id'; // デフォルトは 'id'
-  }
+    }
 });
 
 /**
@@ -27,7 +27,7 @@ onMounted(() => {
  * @function toggleShowCompleted
  * @returns {void}
  */
- const toggleShowCompleted = () => {
+const toggleShowCompleted = () => {
     isCompletion.value = !isCompletion.value;
 };
 </script>

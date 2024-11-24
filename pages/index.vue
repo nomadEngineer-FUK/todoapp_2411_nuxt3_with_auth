@@ -2,36 +2,35 @@
 import { useAuth } from '~/composables/useAuth';
 import { onMounted, watchEffect } from 'vue';
 import Login from '~/components/auth/Login.vue';
+import { useRouter } from 'nuxt/app';
 
-const { isAuthenticated } = useAuth();
+const { isAuthenticated, checkUser, isAdmin } = useAuth();
 const router = useRouter();
+const isCheckComplete = ref(false);
 
-/**
- * コンポーネントがマウントされたときに認証状態を確認し、リダイレクトを行う
- * @function onMounted
- * @returns {void}
- */
- onMounted(() => {
-  if (isAuthenticated.value) {
-    // ログイン済みの場合は自動的に /todos へリダイレクト
-    router.push('/todos');
+
+
+onMounted(async () => {
+  console.log("onMounted: Checking user");
+
+  if (process.client) {
+    await checkUser();
+    console.log("isAuthenticated after checkUser in mounted:", isAuthenticated.value);
+    isCheckComplete.value = true;
   }
 });
 
-/**
- * 認証状態の変化に応じてタスクデータの取得を実行
- * @function watchEffect
- * @returns {void}
- */
- watchEffect(() => {
-  console.log('isAuthenticated:', isAuthenticated.value);
-
-  // ログイン済みの場合はタスクを取得
-  if (isAuthenticated.value) {
-    // 認証済みの場合、タスク画面にリダイレクト
+// isAuthenticated を監視して、ログイン済みであればリダイレクト
+watchEffect(() => {
+  if (isCheckComplete.value && isAuthenticated.value) {
+    console.log("Redirecting to /todos");
     router.push('/todos');
   }
 });
+watch(isAuthenticated, (newValue, oldValue) => {
+  console.log(`isAuthenticated changed: ${oldValue} -> ${newValue}`);
+});
+
 </script>
 
 <template>

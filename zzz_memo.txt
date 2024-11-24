@@ -1,0 +1,2 @@
+// cspell:ignore Nuxt
+// cspell:ignore Supabase

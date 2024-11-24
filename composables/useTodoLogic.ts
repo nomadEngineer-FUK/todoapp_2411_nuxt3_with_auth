@@ -3,6 +3,11 @@ import type { User } from "@supabase/supabase-js";
 import { useNuxtApp } from "nuxt/app";
 import { computed } from "vue";
 
+// cspell:ignore Nuxt
+// cspell:ignore Supabase
+// cspell:ignore todoapp
+// cspell:ignore filterd
+
 /**
  * 新規Todoを追加または編集したTodoを更新する関数
  *
@@ -51,7 +56,7 @@ export const addTodo = async () => {
     if (!newTodo.value.title) {
         alert('"Todo Title" is a required field.');
         return;
-    };
+    }
 
     // [Validation 2] 空欄 or 有効な日付（YYYY-MM-DD） のみ受け付ける
     if (newTodo.value.deadline && !isValidDate(newTodo.value.deadline)) {
@@ -59,16 +64,16 @@ export const addTodo = async () => {
         alert('Please enter a valid date (in the format “YYYY-MM-DD”) in the Deadline field.');
         return;
 
-        // 入力が無い場合はnullを代入
-        } else {
+    // 入力が無い場合はnullを代入
+    } else if (!newTodo.value.deadline) {
         newTodo.value.deadline = null;
-    };
+    }
 
     const user = await checkUserSession(); // セッションを確認してユーザーを取得
     if (!user) {
         console.error('User is not logged in.');
         return;
-    };
+    }
 
     // DBに入力値を挿入
     const { data, error } = await $supabase
@@ -87,13 +92,13 @@ export const addTodo = async () => {
         console.error("Error inserting todo:", error.message);
         alert("Failed to add the task. Please try again.");
         return;
-    };
+    }
 
     // DBへ正常に挿入できた場合
     if (data) {
         await fetchTodos(); // todosの値をデータベースの値と同期
         resetNewTodo();     // newTodoの値をリセット
-    };    
+    };
 };
 
 /**
@@ -186,6 +191,14 @@ const checkUserSession = async (): Promise<User | null> => {
     return session.user;
 };
 
+
+
+
+// JSDoc書き直し！！！
+
+
+
+
 /**
  * フィルタとソートされたTodoリストを返す計算プロパティ
  * 
@@ -197,54 +210,91 @@ const checkUserSession = async (): Promise<User | null> => {
  * @computed
  * @returns {Todo[]}
  */
-export const sortedTodosList = computed<Todo[]>(() => {
-    // 状態管理
-    const todos = useTodos();
-    const selectedSort = useSelectedSort();
-    const isCompletion = useIsCompletion();
-    const sortOrder = useSortOrder();
 
+export const sortedTodosList = computed(() => {
+    const todos = useTodos();               // Todoリスト
+    const searchText = useSearchText();     // 検索文字列
+    const isCompletion = useIsCompletion(); // 完了/未完了フィルタリング
+    const selectedSort = useSelectedSort(); // ソート対象
+    const sortOrder = useSortOrder();       // ソート順（昇順/降順）
+    
+    // todosが無い場合は空の配列を返す
     if (!todos.value.length) return [];
 
-    // 完了・未完了のフィルタリング
-    const filterdTodos = isCompletion.value
-        ? todos.value.filter((todo: Todo) => todo.status)
-        : todos.value.filter((todo: Todo) => !todo.status);
+    // 1. 検索フィルタリング
+    const filteredTodosBySearch = getFilteredTodosBySearch(todos.value, searchText.value);
 
-    // ソート処理
-    const sortedArray = [...filterdTodos].sort((a, b) => {
-        // ソートで選択されている項目を取得（id / title / deadline）
-        const fieldA = a[selectedSort.value as keyof Todo] as unknown as string | number;
-        const fieldB = b[selectedSort.value as keyof Todo] as unknown as string | number;
+    // 2. 完了/未完了フィルタリング
+    const filteredTodosByCompletion = getFilteredTodosByCompletion(filteredTodosBySearch, isCompletion.value);
 
-        // ソートの項目=deadline
-        if (selectedSort.value === 'deadline') {
+    // 検索結果が空か否かをチェック
+    if (!filteredTodosByCompletion.length) return [];
+
+    // 3. ソート処理
+    const sortedTodos = getSortedTodos(filteredTodosByCompletion, selectedSort.value, sortOrder.value);
+
+    return sortedTodos;
+});
+
+/**
+ *  1. 検索フィルタリング
+ */
+export const getFilteredTodosBySearch = (todos: Todo[], searchText: string | null): Todo[] => {
+    if (!searchText) return todos;
+
+    const lowerSearchText = searchText.toLowerCase(); // 大文字小文字を区別しない
+    return todos.filter((todo) =>
+        todo.title.toLowerCase().includes(lowerSearchText) ||
+        todo.detail?.toLowerCase().includes(lowerSearchText)
+    );
+};
+
+/**
+ * 2. 完了/未完了フィルタリング
+ */
+export const getFilteredTodosByCompletion = (todos: Todo[], isCompletion: boolean): Todo[] => {
+    return isCompletion
+        ? todos.filter(todo => todo.status)   // 完了todo
+        : todos.filter(todo => !todo.status); // 未完了todo
+};
+
+/**
+ * 3. ソート処理
+ */
+export const getSortedTodos = (
+    todos: Todo[],
+    selectedSort: keyof Todo,
+    sortOrder: 'asc' | 'desc'
+): Todo[] => {
+    return [...todos].sort((a, b) => {
+        const fieldA = a[selectedSort] as unknown as string | number;
+        const fieldB = b[selectedSort] as unknown as string | number;
+
+        // ソート対象が `deadline` の場合
+        if (selectedSort === 'deadline') {
             const dateA = fieldA ? new Date(fieldA as string).getTime() : Infinity;
             const dateB = fieldB ? new Date(fieldB as string).getTime() : Infinity;
-        
+
             if (!fieldA) return 1;
             if (!fieldB) return -1;
 
-            return sortOrder.value === 'asc'
-                ? dateA - dateB
-                : dateB - dateA;
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
         }
 
-        // ソートの項目=deadline以外のString型（現時点ではtitleのみ）
+        // ソート対象が文字列の場合
         if (typeof fieldA === 'string' && typeof fieldB === 'string') {
-            return sortOrder.value === 'asc'
+            return sortOrder === 'asc'
                 ? fieldA.localeCompare(fieldB)
-                : fieldB.localeCompare(fieldA)
+                : fieldB.localeCompare(fieldA);
         }
- 
-        // ソートの 昇順or降順 を判別して並び替え
-        return sortOrder.value === 'asc'
+        // ソート対象が数値の場合
+        return sortOrder === 'asc'
             ? (fieldA as number) - (fieldB as number)
-            : (fieldB as number) - (fieldA as number)
+            : (fieldB as number) - (fieldA as number);
+        
     });
-    
-    return sortedArray; // ソートが完了したtodoをreturn
-});
+};
+
 
 /**
  * 指定された文字列が有効な日付（YYYY-MM-DD形式）かを判定する関数

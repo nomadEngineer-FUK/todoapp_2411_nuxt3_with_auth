@@ -6,8 +6,11 @@
  * 
  * @returns {SupabaseClient} Supabaseクライアントインスタンス
  */
+
+// cspell:ignore Nuxt
+// cspell:ignore Supabase
+
 export const useSupabase = () => {
     const nuxtApp = useNuxtApp()
     return nuxtApp.$supabase
 };
-  

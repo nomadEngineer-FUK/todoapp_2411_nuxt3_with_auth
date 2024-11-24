@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useAuth } from '~/composables/useAuth';
 
 const { signUp, user } = useAuth();
+const username = ref<string>(''); // ユーザーが入力したユーザー名
 const email = ref<string>('');    // ユーザーが入力したメールアドレス
 const password = ref<string>(''); // ユーザーが入力したパスワード
 const isLoading = ref(false);     // ローディングフラグ
@@ -16,11 +17,19 @@ const errorMessage = ref<string | null>(null); // サインアップエラーメ
  * @description 入力したメールとパスワードでユーザーの新規登録を行う。
  *              成功時はユーザー情報が返され、エラー時にはエラーメッセージを設定。
  */
- const registerUser = async () => {
+const registerUser = async () => {
     errorMessage.value = null;  // エラーメッセージをリセット
 
+    // 入力項目が空欄でないか確認するバリデーション
+    if (!username.value.trim() || !email.value.trim() || !password.value.trim()) {
+        alert('Please fill in all the fields.');
+        return;
+    }
+
     try {
-        await signUp(email.value, password.value, isLoading);
+        console.log('Username before signUp:', username.value);
+
+        await signUp(username.value, email.value, password.value, isLoading);
         
     } catch (error) {
         console.error('Signup error:', (error as Error).message);
@@ -47,6 +56,14 @@ const errorMessage = ref<string | null>(null); // サインアップエラーメ
             <h4 class="signup-header">Provide your account information</h4>
 
             <form class="signup-form" @submit.prevent="registerUser">
+                <label for="signup-username">User Name: </label>
+                <input
+                    id="signup-username" 
+                    name="signup-username"
+                    type="text"
+                    v-model="username"
+                    placeholder="Enter your User Name. You can change this later.">
+
                 <label for="signup-email">Email: </label>
                 <input
                     id="signup-email"
@@ -86,7 +103,7 @@ const errorMessage = ref<string | null>(null); // サインアップエラーメ
     text-align: center;
 }
 .signup-page {
-   position: absolute;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
