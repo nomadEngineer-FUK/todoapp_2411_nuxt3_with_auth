@@ -7,17 +7,19 @@ assignees: ''
 
 ---
 
-### Outline
+## 1. Outline
+---
 
+## 2. As Is
+---
 
-### As Is
+## 3. To Be
+---
 
-
-### To Be
-
-
-### To Do
+## 4. To Do
+---
 - [ ] 
 
 
-### Others
+## 5. Others
+---
