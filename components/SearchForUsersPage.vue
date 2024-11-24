@@ -6,7 +6,7 @@ const searchTextForUser = useSearchTextForUser();
 </script>
 
 <template>
-    <div class="search-todo">
+    <div class="search-todo-for-user">
         <label for="search">Search: </label>
         <input 
             type="text"
@@ -18,7 +18,7 @@ const searchTextForUser = useSearchTextForUser();
 </template>
 
 <style>
-.search-todo {
+.search-todo-for-user {
     width: 100%;
     margin: 0.3rem auto 0;
     text-align: end;

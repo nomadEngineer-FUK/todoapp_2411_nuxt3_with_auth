@@ -23,7 +23,6 @@ const searchText = useSearchText();
     width: 80%;
     margin: 0.3rem auto 0;
     text-align: end;
-    
 }
 .search-todo input {
     border-radius: 4px;
