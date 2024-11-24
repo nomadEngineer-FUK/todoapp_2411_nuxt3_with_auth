@@ -79,9 +79,10 @@ const logoutUser = async (): Promise<void> => {
     right: 0;
     z-index: 10;
     width: 150px;
+    background-color: #fcf6f6f7;
     border: 1px solid rgba(100,100,100,0.2);
     margin-top: 0.5rem;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 .menu ul {
     list-style-type: none;
