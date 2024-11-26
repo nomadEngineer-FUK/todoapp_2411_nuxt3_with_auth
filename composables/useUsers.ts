@@ -14,20 +14,6 @@ const { checkUser } = useAuth();
 const allUsers = useAllUsers();
 
 /**
- * 認証セッションの有効性を確認
- * @async
- * @function checkUserValid
- * @returns {Promise<false | void>} 有効でない場合は false を返す
- */
-const checkUserValid = async (): Promise<false | void> => {
-    const isUserValid = await checkUser(); // ユーザーの認証状態を取得
-    if (!isUserValid) {
-        errMsgAboutSessionOrAuth(); // セッション or ユーザー認証時のエラーメッセージ
-        return false;
-    }
-};
-
-/**
  * 統一的なログ出力を行う関数
  * @function errMsgAboutSessionOrAuth
  * @description セッションまたは認証エラー時のログメッセージを出力
@@ -90,8 +76,12 @@ export const useUserProfile = () => {
      */
     const updateProfile = async (userId: string): Promise<boolean> => {
 
-        // セッションの有効性を確認
-        await checkUserValid();
+        // ユーザーの認証状態を取得
+        const isUserValid = await checkUser();
+        if (!isUserValid) {
+            errMsgAboutSessionOrAuth(); // セッション or ユーザー認証時のエラーメッセージ
+            return false;
+        }
 
         // 更新処理 1: users テーブルの更新
         const updateUserResult = await updateUsersTable(userId);
