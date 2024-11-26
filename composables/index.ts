@@ -83,3 +83,12 @@ export const useIsEmptyAfterSearch = () => useState<boolean>('isEmptyAfterSearch
 
   // Search時の値（idとdeadline、statusは検索対象外）
   export const useSearchTextForUser = () => useState<string | null>('searchTextForUser', () => null);
+  
+  // ログイン中のユーザー
+  export const useCurrentUser = () => useState<Partial<ExtendedUser>>('currentUser', () => ({
+      id: '',
+      username: 'sample',
+      email: 'sample@test.com',
+      role: 'user',
+      account_status: 'active'
+    }))
