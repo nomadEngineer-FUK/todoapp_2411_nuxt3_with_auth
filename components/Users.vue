@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { useAllUsers } from '~/composables';
+import { useAuthUser } from '~/composables';
+import { useAllUsers, useCurrentUser } from '~/composables';
 
 const selectedSortForUser = useSelectedSortForUser();
 const sortOrderForUser = useSortOrderForUser();       // ソートの種類
 const allUsers = useAllUsers(); // 全ユーザー情報を保持する状態管理
+const currentUser = useCurrentUser();
+
 onMounted(async () => {
     await fetchAllUsers(); // 全ユーザー情報を取得
+
+    // デバッグ: currentUserの中身を確認
+    console.log("currentUser:", currentUser.value);
+
 
     const storedSortForUser = localStorage.getItem('selectedSortForUser');
     if (storedSortForUser
@@ -25,6 +32,15 @@ onMounted(async () => {
         selectedSortForUser.value = 'username';
     }
 });
+
+// 現在のユーザーか判定する関数
+const isCurrentUser = (userId: string | undefined) => {
+
+    const authUser = useAuthUser();
+    if (!userId) return false;
+    return authUser.value?.id === userId;
+}
+
 
 </script>
 
@@ -64,7 +80,16 @@ onMounted(async () => {
 
             <tbody>
                 <tr v-for="user in sortedUsersList" :key="user.id">
-                    <td>{{ user.username }}</td>
+                    <td>
+                        {{ user.username }}
+                        <span
+                            v-if="isCurrentUser(user.id)"
+                            class="you-label"
+                            >
+                                YOU
+                        </span>
+                    </td>
+
                     <td>{{ user.email }}</td>
                     <td>{{ user.role }}</td>
                     <td>{{ user.account_status }}</td>
@@ -132,5 +157,12 @@ onMounted(async () => {
     border-bottom: 1px solid #ddd;
 }
 
-
+.you-label {
+    margin-left: 8px;
+    padding: 3px 6px;
+    font-size: smaller;
+    color: #696969;
+    border-radius: 3px;
+    background-color: #f0e4d7;
+}
 </style>

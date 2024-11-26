@@ -1,6 +1,6 @@
 import { useNuxtApp } from "nuxt/app";
 import { computed } from "vue";
-import { useAuthUser, useNewAuthUser, useAllUsers } from "~/composables/index";
+import { useAuthUser, useNewAuthUser, useAllUsers, useCurrentUser } from "~/composables/index";
 import type { UserProfile } from "~/types/type";
 import { useAuth } from "~/composables/useAuth";
 import type { ExtendedUser, UserSortType } from "~/types/type";
@@ -37,7 +37,7 @@ const errMsgAboutSessionOrAuth = () => {
 };
 
 /**
- * プロフィールに関連する機能を提供するComposable
+ * ログイン中のユーザーに関連する操作
  * @returns {Object} プロフィール関連の関数と状態
  */
 export const useUserProfile = () => {
@@ -214,10 +214,10 @@ export const fetchAllUsers = async (): Promise<Partial<ExtendedUser>[]> => {
  * @returns {Partial<ExtendedUser>[]} フィルタとソート後のユーザーリスト
  */
 export const sortedUsersList = computed(() => {
-    const users = useAllUsers();                   // 全ユーザー
-    const searchTextForUser = useSearchTextForUser();            // 検索文字列
+    const users = useAllUsers();                          // 全ユーザー
+    const searchTextForUser = useSearchTextForUser();     // 検索文字列
     const selectedSortForUser = useSelectedSortForUser(); // ソート対象
-    const sortOrderForUser = useSortOrderForUser();              // 'asc' or 'desc'
+    const sortOrderForUser = useSortOrderForUser();       // 'asc' or 'desc'
 
     if (!users.value.length) return [];
 
