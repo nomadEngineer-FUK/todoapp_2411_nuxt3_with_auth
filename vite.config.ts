@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '~': '/src',
-      '#build': './.nuxt',
+      '~': '.',
+      // '#build': '/.nuxt',
     },
   },
   optimizeDeps: {

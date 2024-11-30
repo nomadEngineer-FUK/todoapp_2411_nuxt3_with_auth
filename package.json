@@ -16,12 +16,13 @@
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@nuxt/test-utils": "^3.14.4",
     "@nuxt/types": "^2.18.1",
     "@types/node": "^22.9.3",
     "@types/vue": "^2.0.0",
     "@vitejs/plugin-vue": "^5.1.4",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^25.0.1",
-    "vitest": "^2.1.4"
+    "vitest": "^2.1.6"
   }
 }
