@@ -19,9 +19,10 @@ export default defineNuxtConfig({
       title: 'TodoApp with Nuxt & Supabase',
     }
   },
-  cookies: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    httpOnly: true,
-  }
+  // cookies: {
+  //   secure: process.env.NODE_ENV === 'production',
+  //   sameSite: 'lax',
+  //   httpOnly: true,
+  // },
+  test: true,
 });

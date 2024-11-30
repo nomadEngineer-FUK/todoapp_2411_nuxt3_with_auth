@@ -2,12 +2,14 @@
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "types": ["@nuxt/types", "@types/node", "./types/supabase"],
+    "types": ["@nuxt/types", "@types/node", "./types/supabase", "vitest"],
     "baseUrl": ".",
     "paths": {
       "~/*": ["./*"],
       "@/*": ["./*"],
       "#build/*": [".nuxt/*"]
-    }
+    },
+    "moduleResolution": "node",
+    "esModuleInterop": true
   }
 }
