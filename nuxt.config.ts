@@ -25,4 +25,5 @@ export default defineNuxtConfig({
   //   httpOnly: true,
   // },
   test: true,
+  css: ['@/assets/styles/variables.css'],
 });

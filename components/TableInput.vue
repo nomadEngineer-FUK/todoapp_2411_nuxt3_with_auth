@@ -125,6 +125,26 @@ const backToRegMode = (): void => {
     width: 35%;
 }
 
+/* レスポンシブデザイン - ヘッダー部分 */
+@media (max-width: 1024px) {
+    .table-for-input {
+        width: 90%;
+    }
+
+    .table-for-input th {
+        /* width: 20%; */
+        text-align: right;
+    }
+
+    .table-for-input label {
+        font-size: 0.7rem;
+        margin-right: 0.4rem;
+    }
+    #deadline {
+        width: 50%;
+    }
+}
+
 .buttons{
     margin-top: 1rem;
     margin: 0 auto;
@@ -160,5 +180,14 @@ const backToRegMode = (): void => {
     background-color: rgba(100, 100, 100, 0.822);
     color: aliceblue;
     transition: 0.3s;
+}
+
+/* レスポンシブデザイン - ボタン部分 */
+@media (max-width: 1024px) {
+    .buttons {
+        padding-bottom: 0.8rem;
+        margin-bottom: 1rem;;
+        border-bottom: 1px solid #3333332f;
+    }
 }
 </style>
