@@ -29,4 +29,20 @@ const searchText = useSearchText();
     padding: 0.2rem;
     border: 1px solid #333333;
 }
+
+/* レスポンシブデザイン */
+@media (max-width: 480px) {
+    .search-todo {
+        text-align: start;
+        margin-top: 0.8rem;
+        background-color: aquamarine;
+        text-align: center;
+    }
+    .search-todo label {
+        width: 20%;
+    }
+    .search-todo input {
+        width: 70%;
+    }
+}
 </style>
