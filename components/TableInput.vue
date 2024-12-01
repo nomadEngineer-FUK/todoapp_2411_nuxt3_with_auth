@@ -26,7 +26,7 @@ const backToRegMode = (): void => {
                 </tr>
                 <tr>
                     <th>
-                        <label for="title">Todo Title</label>
+                        <label for="title">Todo</label>
                     </th>
                     <td>
                         <input
