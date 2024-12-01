@@ -49,13 +49,12 @@ const toggleShowCompleted = (): void => {
 
 <template>
     <!-- ソート -->
-    <div class="switching-view">
-        <div>
-            <button
-                class="btn-switch-completion"
-                :class="{ 'btn-switch-brown': isCompletion, 'btn-switch-gray': !isCompletion }" 
+    <div class="controls-container">
+        <div class="switching-view">
+            <button class="btn-switch-completion"
+                :class="{ 'btn-switch-brown': isCompletion, 'btn-switch-gray': !isCompletion }"
                 @click="toggleShowCompleted">
-                    {{ isCompletion ? 'Show Incomplete Todos' : 'Show Completed Todos' }}
+                {{ isCompletion ? 'Show Incomplete Todos' : 'Show Completed Todos' }}
             </button>
         </div>
         <div class="sort" v-if="todos && todos.length > 0">
@@ -64,7 +63,7 @@ const toggleShowCompleted = (): void => {
                 <select name="sort" id="sort" v-model="selectedSort">
                     <option value="id">No</option>
                     <option value="deadline">Deadline</option>
-                    <option value="title">Todo Title</option>                
+                    <option value="title">Todo Title</option>
                 </select>
             </div>
             <div class="sort-item">
@@ -73,13 +72,13 @@ const toggleShowCompleted = (): void => {
                     <option value="asc">Asc</option>
                     <option value="desc">Desc</option>
                 </select>
-            </div>            
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-.switching-view {
+.controls-container {
     display: flex;
     align-items: center;
     width: 80%;
