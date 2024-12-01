@@ -11,11 +11,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div class="todo-app">
     <NuxtRouteAnnouncer />
-    
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
   </div>
 </template>
+
+<style>
+@media (max-width: 1024px) {
+  .todo-app {
+    max-width: 100%;
+  }
+}
+</style>

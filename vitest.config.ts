@@ -6,6 +6,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': '.',
+      '@': '.',
       // '#build': './.nuxt', // エイリアスを追加
     },
   },
