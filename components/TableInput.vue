@@ -190,4 +190,9 @@ const backToRegMode = (): void => {
         border-bottom: 1px solid #3333332f;
     }
 }
+@media (max-width: 480px) {
+    .btn-add-update {
+        width: 50%;
+    }
+}
 </style>

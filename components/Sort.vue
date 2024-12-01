@@ -57,7 +57,7 @@ const toggleShowCompleted = (): void => {
                 {{ isCompletion ? 'Show Incomplete Todos' : 'Show Completed Todos' }}
             </button>
         </div>
-        <div class="sort" v-if="todos && todos.length > 0">
+        <div class="sort-container" v-if="todos && todos.length > 0">
             <div class="sort-item">
                 <label for="sort">Sort: </label>
                 <select name="sort" id="sort" v-model="selectedSort">
@@ -85,7 +85,7 @@ const toggleShowCompleted = (): void => {
     margin: 0 auto;
     justify-content: space-between;
 }
-.sort {
+.sort-container {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -109,5 +109,24 @@ const toggleShowCompleted = (): void => {
 .btn-switch-completion:hover {
     opacity: 0.6;
     transition: 0.3s;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 480px) {
+    .controls-container {
+        display: block;
+    }
+    .switching-view .btn-switch-completion {
+        width: 70%;
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 1.2rem;
+    }
+    .sort-container {
+        flex-direction:row;
+        gap: 1rem;
+        background-color: aqua;
+        justify-content: space-around;
+    }
 }
 </style>
