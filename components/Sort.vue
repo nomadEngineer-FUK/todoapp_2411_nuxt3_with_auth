@@ -125,7 +125,6 @@ const toggleShowCompleted = (): void => {
     .sort-container {
         flex-direction:row;
         gap: 1rem;
-        background-color: aqua;
         justify-content: space-around;
     }
 }

@@ -35,7 +35,6 @@ const searchText = useSearchText();
     .search-todo {
         text-align: start;
         margin-top: 0.8rem;
-        background-color: aquamarine;
         text-align: center;
     }
     .search-todo label {
