@@ -75,13 +75,13 @@ const canEditAndDelete = (todo: Todo): boolean => {
     <!-- Todosの表示テーブル -->
     <tbody v-else>
         <tr v-for="todo in sortedTodosList" :key="todo.id">
-            <td>{{ todo.id }}</td>
+            <td class="display-none-for-mobile">{{ todo.id }}</td>
             <td>
                 <input type="checkbox" name="status" id="status" v-model="todo.status" @change="updateTodo(todo)">
             </td>
-            <td>{{ todo.deadline }}</td>
+            <td class="display-none-for-mobile">{{ todo.deadline }}</td>
             <td>{{ todo.title }}</td>
-            <td>{{ todo.detail }}</td>
+            <td class="display-none-for-mobile">{{ todo.detail }}</td>
             <td v-if="!todo.status">
                 <button v-if="canEditAndDelete(todo)" class="btn-table btn-edit" @click="editTodo(todo)">
                     Edit
@@ -121,4 +121,12 @@ td input[type="checkbox"] {
     background-color: gray;
     color: aliceblue;
 }
+
+/* レスポンシブデザイン */
+@media (max-width: 1024px) {
+    .display-none-for-mobile {
+        display: none;
+    }
+}
+
 </style>
