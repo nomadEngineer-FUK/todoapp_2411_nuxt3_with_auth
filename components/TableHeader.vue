@@ -1,14 +1,14 @@
 <template>
-    <thead>
-        <tr class="table-header">
-            <th class="sticky_cross" style="width: 5%;">No</th>
-            <th class="sticky_cross" style="width: 7%;">Status</th>
-            <th class="sticky_col" style="width: 15%;">Deadline</th>
-            <th class="sticky_col" style="width: 20%;">Todo Title</th>
-            <th class="sticky_col" style="width: 23%;">Detail</th>
-            <th class="sticky_col" colspan="2" style="width: 10%;"></th>
-        </tr>
-    </thead>
+  <thead>
+    <tr class="table-header">
+      <th class="sticky_cross display-none-for-mobile" style="width: 5%;">No</th>
+      <th class="sticky_cross" style="width: 7%;">Status</th>
+      <th class="sticky_col display-none-for-mobile" style="width: 15%;">Deadline</th>
+      <th class="sticky_col" style="width: 20%;">Todo Title</th>
+      <th class="sticky_col display-none-for-mobile" style="width: 23%;">Detail</th>
+      <th class="sticky_col" colspan="2" style="width: 10%;"></th>
+    </tr>
+  </thead>
 </template>
 
 <style scoped>
@@ -64,4 +64,12 @@
   height: 100%;
   z-index: -1;
 }
+
+/* レスポンシブデザイン */
+@media (max-width: 1024px) {
+  .display-none-for-mobile {
+    display: none;
+  }
+}
+
 </style>
