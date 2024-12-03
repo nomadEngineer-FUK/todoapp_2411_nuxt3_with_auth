@@ -144,6 +144,11 @@ const backToRegMode = (): void => {
         width: 50%;
     }
 }
+@media (max-width: 480px) {
+    #deadline {
+        width: 70%;
+    }
+}
 
 .buttons{
     margin-top: 1rem;
