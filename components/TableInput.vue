@@ -82,7 +82,6 @@ const backToRegMode = (): void => {
 </template>
 
 <style scoped>
-
 .table-for-input {
     margin: 2rem auto 1rem;
     width: 50%;

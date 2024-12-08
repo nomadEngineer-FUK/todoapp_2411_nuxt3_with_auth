@@ -14,7 +14,6 @@ onMounted(async () => {
     // デバッグ: currentUserの中身を確認
     console.log("currentUser:", currentUser.value);
 
-
     const storedSortForUser = localStorage.getItem('selectedSortForUser');
     if (storedSortForUser
         &&
@@ -68,9 +67,6 @@ const isCurrentUser = (userId: string | undefined) => {
             <SearchForUsersPage />
         </div>
 
-
-
-
         <div class="table-container">
             <table class="table-for-all-users">
                 <thead>
@@ -90,7 +86,6 @@ const isCurrentUser = (userId: string | undefined) => {
                                 You
                             </span>
                         </td>
-
                         <td>{{ user.email }}</td>
                         <td>{{ user.role }}</td>
                         <td>{{ user.account_status }}</td>

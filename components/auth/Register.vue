@@ -42,8 +42,8 @@ const registerUser = async (): Promise<void> => {
         
     } catch (error) {
         console.error('Signup error:', (error as Error).message);
-        errorMessage.value = (error as Error).message; // エラーメッセージを表示
-        password.value = '';                           // パスワードをクリア
+        errorMessage.value = (error as Error).message;
+        password.value = '';
     }
 };
 </script>
