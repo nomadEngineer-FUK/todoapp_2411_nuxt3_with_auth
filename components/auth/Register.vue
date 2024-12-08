@@ -110,6 +110,7 @@ const registerUser = async (): Promise<void> => {
 <style scoped>
 .welcome-our-page {
     text-align: center;
+    margin-top: 10rem;
 }
 .signup-page {
     position: absolute;
@@ -172,5 +173,23 @@ const registerUser = async (): Promise<void> => {
 }
 .error-message {
     color: rgb(200,50,50);
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .signup-page {
+        position: absolute;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -55%);
+    }
+}
+@media (max-width: 480px) {
+    .signup-page {
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        transform: translate(-50%, -55%);
+    }
 }
 </style>

@@ -135,14 +135,14 @@ watchEffect((): void => {
         </div>
     </div>
 </template>
-  
+
 <style scoped>
 /* ページ全体 */
 .welcome-our-page {
     text-align: center;
 }
 .login-page {
-   position: absolute;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
@@ -182,16 +182,16 @@ watchEffect((): void => {
     border: 3px solid rgba(0, 100, 200, 0.822);
     background-color: rgba(0, 100, 200, 0.822);
     color: aliceblue;
+    margin-bottom: 1rem;
 }
 
 /* アカウント未登録の場合 */
 .signup-new-account {
-    margin: 2rem;
     text-align: center;
     border-top: 1px solid rgba(100,100,100,0.2);
 }
 .new-to-our-app {
-    margin: 2rem 0;
+    margin: 1.2rem 0;
 }
 .btn-signup {
     border: 3px solid rgba(150, 20, 60, 0.6);
@@ -207,5 +207,26 @@ watchEffect((): void => {
 .error-message {
     color: rgb(200,50,50);
 }
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .signup-new-account {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 1rem;
+            text-align: center;
+        }
+    
+        .btn-signup {
+            width: 80%;
+            padding: 0.8rem;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+    
+        .new-to-our-app {
+            margin-bottom: 0.5rem;
+        }
+}
 </style>
-  
