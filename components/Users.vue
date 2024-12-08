@@ -40,8 +40,6 @@ const isCurrentUser = (userId: string | undefined) => {
     if (!userId) return false;
     return authUser.value?.id === userId;
 }
-
-
 </script>
 
 <template>
@@ -63,39 +61,38 @@ const isCurrentUser = (userId: string | undefined) => {
                     <option value="desc">Desc</option>
                 </select>
             </div>
-
-            <!-- All Usersページ用の検索昨日のコンポーネント -->
-            <SearchForUsersPage />
         </div>
 
-        <table class="table-for-all-users">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Account Status</th>
-                </tr>
-            </thead>
+        <!-- All Usersページ用の検索機能のコンポーネント -->
+        <SearchForUsersPage />
 
-            <tbody>
-                <tr v-for="user in sortedUsersList" :key="user.id">
-                    <td>
-                        {{ user.username }}
-                        <span
-                            v-if="isCurrentUser(user.id)"
-                            class="you-label"
-                            >
-                                YOU
-                        </span>
-                    </td>
+        <div class="table-container">
+            <table class="table-for-all-users">
+                <thead>
+                    <tr>
+                        <th class="sticky-column">Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Account Status</th>
+                    </tr>
+                </thead>
 
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.role }}</td>
-                    <td>{{ user.account_status }}</td>
-                </tr>
-            </tbody>
-        </table>
+                <tbody>
+                    <tr v-for="user in sortedUsersList" :key="user.id">
+                        <td class="sticky-column">
+                            {{ user.username }}
+                            <span v-if="isCurrentUser(user.id)" class="you-label">
+                                You
+                            </span>
+                        </td>
+
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.account_status }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 
@@ -111,10 +108,13 @@ const isCurrentUser = (userId: string | undefined) => {
     flex-direction: column;
     align-items: flex-end;
     gap: 0.3rem;
-    margin: 4rem 0 1.5rem;
+    margin: 4rem 0 0.8rem;
 }
-
-.sort-item select {
+.search-todo-for-user {
+    margin-bottom: 1.5rem;
+}
+.sort-item select,
+.search-todo-for-user::v-deep(input) {
     padding: 0.2rem;
     border-radius: 4px;
 }
@@ -163,6 +163,37 @@ const isCurrentUser = (userId: string | undefined) => {
     font-size: smaller;
     color: #696969;
     border-radius: 3px;
-    background-color: #f0e4d7;
+    background-color: #f2e6d9;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .sticky-column {
+        background-color: #f2e6d9;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+    .table-container {
+        overflow-x: auto;
+    }
+    .you-label {
+        background-color: #fefefe;
+    }
+}
+
+@media (max-width: 480px) {
+    .sort {
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 0 1.2rem
+    }
+    .search-todo-for-user {
+        text-align: center;
+        margin-top: 1rem;
+
+    }
+    .search-todo-for-user::v-deep(input) {
+        width: 65%;
+        padding: 0.2rem;
+    }
 }
 </style>
