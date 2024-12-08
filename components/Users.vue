@@ -70,7 +70,7 @@ const isCurrentUser = (userId: string | undefined) => {
             <table class="table-for-all-users">
                 <thead>
                     <tr>
-                        <th class="sticky-column">Username</th>
+                        <th>Username</th>
                         <th>Email</th>
                         <th>Role</th>
                         <th>Account Status</th>
@@ -79,7 +79,7 @@ const isCurrentUser = (userId: string | undefined) => {
 
                 <tbody>
                     <tr v-for="user in sortedUsersList" :key="user.id">
-                        <td class="sticky-column">
+                        <td>
                             {{ user.username }}
                             <span v-if="isCurrentUser(user.id)" class="you-label">
                                 You
@@ -168,7 +168,7 @@ const isCurrentUser = (userId: string | undefined) => {
 
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
-    .sticky-column {
+    .table-for-all-users td:first-child {
         background-color: #f2e6d9;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
@@ -183,13 +183,15 @@ const isCurrentUser = (userId: string | undefined) => {
 @media (max-width: 480px) {
     .sort {
         flex-direction: row;
+        gap: 1rem;
         justify-content: space-around;
-        padding: 0 1.2rem
+    }
+    .sort-item {
+        transform: translateX(20%);
     }
     .search-todo-for-user {
         text-align: center;
         margin-top: 1rem;
-
     }
     .search-todo-for-user::v-deep(input) {
         width: 65%;
