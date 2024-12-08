@@ -291,7 +291,7 @@ const validateProfile = (): boolean => {
         width: 80%;
     }
     .profile-fields {
-        width: 75%;
+        width: 100%;
         margin: auto;
         padding: 2rem 0;
         border-top: 1px solid #3333332f;
@@ -300,7 +300,7 @@ const validateProfile = (): boolean => {
     .field-row input,
     .field-row select,
     .field-row span {
-        width: 70%;
+        width: 90%;
         font-size: 1rem;
         margin: 0 auto;
     }

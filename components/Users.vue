@@ -44,27 +44,32 @@ const isCurrentUser = (userId: string | undefined) => {
 
 <template>
     <div class="wrapper-users">
-        <div class="sort" v-if="allUsers && allUsers.length > 0">
-            <div class="sort-item">
-                <label for="sort">Sort: </label>
-                <select name="sort" id="sort" v-model="selectedSortForUser">
-                    <option value="username">Username</option>
-                    <option value="email">Email</option>
-                    <option value="role">Role</option>
-                    <option value="account_status">Account Status</option>
-                </select>
+        <div class="all-users-header">
+            <div class="sort" v-if="allUsers && allUsers.length > 0">
+                <div class="sort-item">
+                    <label for="sort">Sort: </label>
+                    <select name="sort" id="sort" v-model="selectedSortForUser">
+                        <option value="username">Username</option>
+                        <option value="email">Email</option>
+                        <option value="role">Role</option>
+                        <option value="account_status">Account Status</option>
+                    </select>
+                </div>
+                <div class="sort-item">
+                    <label for="order">Order: </label>
+                    <select name="order" id="order" v-model="sortOrderForUser">
+                        <option value="asc">Asc</option>
+                        <option value="desc">Desc</option>
+                    </select>
+                </div>
             </div>
-            <div class="sort-item">
-                <label for="order">Order: </label>
-                <select name="order" id="order" v-model="sortOrderForUser">
-                    <option value="asc">Asc</option>
-                    <option value="desc">Desc</option>
-                </select>
-            </div>
+
+            <!-- All Usersページ用の検索機能のコンポーネント -->
+            <SearchForUsersPage />
         </div>
 
-        <!-- All Usersページ用の検索機能のコンポーネント -->
-        <SearchForUsersPage />
+
+
 
         <div class="table-container">
             <table class="table-for-all-users">
@@ -101,17 +106,25 @@ const isCurrentUser = (userId: string | undefined) => {
     width: 80%;
     margin: 0 auto;
 }
+.all-users-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+}
 
 /* ソート関連 */
 .sort {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
     gap: 0.3rem;
-    margin: 4rem 0 0.8rem;
+    margin-top: 2rem;
 }
-.search-todo-for-user {
-    margin-bottom: 1.5rem;
+.sort-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 .sort-item select,
 .search-todo-for-user::v-deep(input) {
@@ -181,13 +194,22 @@ const isCurrentUser = (userId: string | undefined) => {
 }
 
 @media (max-width: 480px) {
+    .all-users-header {
+        display: block;
+    }
     .sort {
         flex-direction: row;
-        gap: 1rem;
         justify-content: space-around;
+        margin-bottom: 1.2rem;
     }
     .sort-item {
-        transform: translateX(20%);
+        flex-direction: column;
+        align-items: start;
+    }
+    .sort-item select {
+        padding: 0.3rem;
+        border-radius: 4px;
+        border: 1px solid #ccc;
     }
     .search-todo-for-user {
         text-align: center;

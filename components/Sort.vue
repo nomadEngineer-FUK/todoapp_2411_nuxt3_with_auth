@@ -80,7 +80,7 @@ const toggleShowCompleted = (): void => {
 <style scoped>
 .controls-container {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     width: 80%;
     margin: 0 auto;
     justify-content: space-between;
@@ -124,7 +124,6 @@ const toggleShowCompleted = (): void => {
     }
     .sort-container {
         flex-direction:row;
-        gap: 1rem;
         justify-content: space-around;
     }
 }
